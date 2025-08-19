@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participants | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/participants.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Arista</a>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Dashboard</a>
+                    <a href="/events" class="nav-link">Events</a>
+                    <a href="/participants" class="nav-link active">Participants</a>
+                    <a href="/teams" class="nav-link">Teams</a>
+                    <a href="/admin" class="nav-link admin-only">Admin</a>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <button id="signOutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Participants</h1>
+                <div class="page-actions">
+                    <input type="text" id="participantSearch" placeholder="Search participants..." class="search-input">
+                    <select id="gradeFilter" class="filter-select">
+                        <option value="">All Grades</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                    <select id="sectionFilter" class="filter-select">
+                        <option value="">All Sections</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="exportParticipants()">Export CSV</button>
+                    <button class="btn btn-primary" onclick="showCreateParticipantModal()">Add Participant</button>
+                </div>
+            </div>
+
+            <div id="participantsList" class="participants-grid grid grid-3"></div>
+            <div id="participantsPagination" class="pagination"></div>
+        </div>
+    </main>
+
+    <div id="createParticipantModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Participant</h2>
+                <button class="modal-close" onclick="closeModal('createParticipantModal')">&times;</button>
+            </div>
+            <form id="createParticipantForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="participantFirstName" class="form-label">First Name</label>
+                        <input type="text" id="participantFirstName" name="first_name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="participantLastName" class="form-label">Last Name</label>
+                        <input type="text" id="participantLastName" name="last_name" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="participantGrade" class="form-label">Grade</label>
+                        <select id="participantGrade" name="grade" class="form-select" required>
+                            <option value="">Select Grade</option>
+                            <option value="9">Grade 9</option>
+                            <option value="10">Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="participantSection" class="form-label">Section</label>
+                        <input type="text" id="participantSection" name="section" class="form-input" required maxlength="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="participantEmail" class="form-label">Email</label>
+                        <input type="email" id="participantEmail" name="email" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="participantPhone" class="form-label">Phone</label>
+                        <input type="tel" id="participantPhone" name="phone" class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="guardianName" class="form-label">Guardian Name</label>
+                        <input type="text" id="guardianName" name="guardian_name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                        <input type="tel" id="guardianPhone" name="guardian_phone" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="medicalNotes" class="form-label">Medical Notes</label>
+                    <textarea id="medicalNotes" name="medical_notes" class="form-textarea" rows="2"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createParticipantModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Participant</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/participants.js"></script>
+</body>
+</html>

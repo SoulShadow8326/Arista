@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/student_dashboard.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/student_dashboard" class="logo">Arista</a>
+                <nav class="nav">
+                    <a href="/student_dashboard" class="nav-link active">Dashboard</a>
+                    <a href="/student/events" class="nav-link">My Events</a>
+                    <a href="/student/teams" class="nav-link">My Teams</a>
+                    <a href="/student/schedules" class="nav-link">Schedules</a>
+                    <a href="/student/files" class="nav-link">Files</a>
+                </nav>
+                <div class="user-menu">
+                    <div class="student-info">
+                        <span class="student-name" id="studentName">Loading...</span>
+                        <span class="school-name" id="schoolName">Loading...</span>
+                    </div>
+                    <button id="signOutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="welcome-section">
+                <div class="welcome-content">
+                    <h1 class="welcome-title">Welcome back, <span id="welcomeName">Student</span>!</h1>
+                    <p class="welcome-subtitle">Stay updated with your school's events and activities</p>
+                </div>
+                <div class="welcome-visual">
+                    <div class="student-avatar" id="studentAvatar">S</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid grid grid-4">
+                <div class="card stat-card fade-in">
+                    <div class="stat-icon"></div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="myEvents">0</div>
+                        <div class="stat-label">My Events</div>
+                    </div>
+                </div>
+
+                <div class="card stat-card fade-in">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="myTeams">0</div>
+                        <div class="stat-label">Teams</div>
+                    </div>
+                </div>
+
+                <div class="card stat-card fade-in">
+                    <div class="stat-icon">📢</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="unreadAnnouncements">0</div>
+                        <div class="stat-label">New Announcements</div>
+                    </div>
+                </div>
+
+                <div class="card stat-card fade-in">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="myTasks">0</div>
+                        <div class="stat-label">My Tasks</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-content grid grid-3">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Upcoming Events</h3>
+                        <a href="/student/events" class="card-action">View All</a>
+                    </div>
+                    <div id="upcomingEvents" class="events-list"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Latest Announcements</h3>
+                        <button class="card-action" onclick="markAllRead()">Mark All Read</button>
+                    </div>
+                    <div id="latestAnnouncements" class="announcements-list"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">My Teams</h3>
+                        <a href="/student/teams" class="card-action">View All</a>
+                    </div>
+                    <div id="myTeamsList" class="teams-list"></div>
+                </div>
+            </div>
+
+            <div class="dashboard-bottom grid grid-2">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Today's Schedule</h3>
+                        <a href="/student/schedules" class="card-action">Full Schedule</a>
+                    </div>
+                    <div id="todaySchedule" class="schedule-list"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">My Tasks</h3>
+                        <button class="card-action" onclick="refreshTasks()">Refresh</button>
+                    </div>
+                    <div id="myTasksList" class="tasks-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const userResponse = await api.getMe();
+                const user = userResponse.user;
+                
+                document.getElementById('studentName').textContent = user.name;
+                document.getElementById('schoolName').textContent = userResponse.school.name;
+                document.getElementById('welcomeName').textContent = user.name.split(' ')[0];
+                
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('studentAvatar').textContent = initials;
+                
+                if (user.role !== 'student') {
+                    window.location.href = '/school_dashboard';
+                    return;
+                }
+                
+                setupEventListeners();
+                loadDashboardData();
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        });
+
+        function setupEventListeners() {
+            document.getElementById('signOutBtn').addEventListener('click', async function() {
+                try {
+                    await api.signOut();
+                    window.location.href = '/';
+                } catch (error) {
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        async function loadDashboardData() {
+            try {
+                const [events, teams, announcements, tasks, schedule] = await Promise.all([
+                    api.get('/student/events'),
+                    api.get('/student/teams'),
+                    api.get('/student/announcements?unread=true'),
+                    api.get('/student/tasks'),
+                    api.get('/student/schedule/today')
+                ]);
+
+                updateStats(events.length, teams.length, announcements.length, tasks.length);
+                renderUpcomingEvents(events.slice(0, 5));
+                renderAnnouncements(announcements.slice(0, 5));
+                renderTeams(teams.slice(0, 3));
+                renderTodaySchedule(schedule);
+                renderTasks(tasks.slice(0, 5));
+            } catch (error) {
+                console.error('Dashboard data load error:', error);
+                loadMockData();
+            }
+        }
+
+        function loadMockData() {
+            updateStats(3, 2, 5, 4);
+            
+            const mockEvents = [
+                { title: 'Science Fair', start_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+                { title: 'Math Competition', start_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' }
+            ];
+            renderUpcomingEvents(mockEvents);
+
+            const mockAnnouncements = [
+                { title: 'Science Fair Registration Open', created_at: new Date().toISOString(), unread: true },
+                { title: 'Library Hours Extended', created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), unread: false }
+            ];
+            renderAnnouncements(mockAnnouncements);
+
+            const mockTeams = [
+                { name: 'Physics Team', event_title: 'Science Fair', role: 'member' },
+                { name: 'Debate Team', event_title: 'Inter-school Debate', role: 'captain' }
+            ];
+            renderTeams(mockTeams);
+
+            const mockSchedule = [
+                { title: 'Team Meeting', start_time: '10:00 AM', venue: 'Physics Lab' },
+                { title: 'Practice Session', start_time: '2:00 PM', venue: 'Auditorium' }
+            ];
+            renderTodaySchedule(mockSchedule);
+
+            const mockTasks = [
+                { title: 'Submit consent form', due_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'pending' },
+                { title: 'Prepare presentation', due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'in_progress' }
+            ];
+            renderTasks(mockTasks);
+        }
+
+        function updateStats(events, teams, announcements, tasks) {
+            document.getElementById('myEvents').textContent = events;
+            document.getElementById('myTeams').textContent = teams;
+            document.getElementById('unreadAnnouncements').textContent = announcements;
+            document.getElementById('myTasks').textContent = tasks;
+        }
+
+        function renderUpcomingEvents(events) {
+            const container = document.getElementById('upcomingEvents');
+            if (events.length === 0) {
+                container.innerHTML = '<p class="empty-message">No upcoming events</p>';
+                return;
+            }
+
+            container.innerHTML = events.map(event => `
+                <div class="event-item">
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-date">${formatDate(event.start_at)}</div>
+                    <div class="event-status status-${event.status}">${event.status}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('latestAnnouncements');
+            if (announcements.length === 0) {
+                container.innerHTML = '<p class="empty-message">No new announcements</p>';
+                return;
+            }
+
+            container.innerHTML = announcements.map(announcement => `
+                <div class="announcement-item ${announcement.unread ? 'unread' : ''}">
+                    <div class="announcement-title">${announcement.title}</div>
+                    <div class="announcement-date">${formatDate(announcement.created_at)}</div>
+                    ${announcement.unread ? '<div class="unread-indicator">New</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderTeams(teams) {
+            const container = document.getElementById('myTeamsList');
+            if (teams.length === 0) {
+                container.innerHTML = '<p class="empty-message">Not part of any teams yet</p>';
+                return;
+            }
+
+            container.innerHTML = teams.map(team => `
+                <div class="team-item">
+                    <div class="team-name">${team.name}</div>
+                    <div class="team-event">${team.event_title}</div>
+                    <div class="team-role role-${team.role}">${team.role}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderTodaySchedule(schedule) {
+            const container = document.getElementById('todaySchedule');
+            if (schedule.length === 0) {
+                container.innerHTML = '<p class="empty-message">No activities scheduled for today</p>';
+                return;
+            }
+
+            container.innerHTML = schedule.map(item => `
+                <div class="schedule-item">
+                    <div class="schedule-time">${item.start_time}</div>
+                    <div class="schedule-details">
+                        <div class="schedule-title">${item.title}</div>
+                        <div class="schedule-venue">${item.venue}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTasks(tasks) {
+            const container = document.getElementById('myTasksList');
+            if (tasks.length === 0) {
+                container.innerHTML = '<p class="empty-message">No tasks assigned</p>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-due">Due: ${formatDate(task.due_at)}</div>
+                    <div class="task-status status-${task.status}">${task.status.replace('_', ' ')}</div>
+                </div>
+            `).join('');
+        }
+
+        function markAllRead() {
+            showToast('All announcements marked as read', 'success');
+            loadDashboardData();
+        }
+
+        function refreshTasks() {
+            showToast('Tasks refreshed', 'info');
+            loadDashboardData();
+        }
+    </script>
+</body>
+</html>

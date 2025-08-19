@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management | Arista</title>
+    <link rel="stylesheet" href="../css/files.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <h1>Arista</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <button class="user-button" id="userButton">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Loading...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/school_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="nav-section">
+                <h3>Events</h3>
+                <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+                <a href="/participants"><i class="fas fa-users"></i> Participants</a>
+                <a href="/teams"><i class="fas fa-user-friends"></i> Teams</a>
+                <a href="/schedules"><i class="fas fa-clock"></i> Schedules</a>
+            </div>
+            <div class="nav-section">
+                <h3>Management</h3>
+                <a href="/tasks"><i class="fas fa-tasks"></i> Tasks</a>
+                <a href="/announcements"><i class="fas fa-bullhorn"></i> Announcements</a>
+                <a href="/files" class="active"><i class="fas fa-folder"></i> Files</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-folder"></i> File Management</h1>
+                <p>Upload, organize, and share event-related files</p>
+            </div>
+
+            <!-- File Controls -->
+            <div class="file-controls">
+                <div class="filter-controls">
+                    <select id="eventFilter">
+                        <option value="">All Events</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="document">Documents</option>
+                        <option value="image">Images</option>
+                        <option value="video">Videos</option>
+                        <option value="audio">Audio</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search files...">
+                </div>
+                <div class="action-controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid" title="Grid View">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" title="List View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-primary" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload Files
+                    </button>
+                </div>
+            </div>
+
+            <!-- File Stats -->
+            <div class="file-stats">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-file"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalFiles">0</h3>
+                        <p>Total Files</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon size">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalSize">0 MB</h3>
+                        <p>Storage Used</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon recent">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="recentFiles">0</h3>
+                        <p>This Week</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon shared">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="sharedFiles">0</h3>
+                        <p>Shared Files</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Area -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop Files Here</h3>
+                    <p>or click to browse files</p>
+                    <input type="file" id="fileInput" multiple hidden>
+                </div>
+            </div>
+
+            <!-- File List -->
+            <div class="file-container">
+                <div class="file-list grid-view" id="fileList">
+                    <!-- Files will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let files = [];
+        let events = [];
+        let currentView = 'grid';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            await loadData();
+            initializeEventHandlers();
+            renderFiles();
+            updateStats();
+        });
+
+        async function checkAuth() {
+            currentUser = await getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (currentUser.role === 'student') {
+                window.location.href = '/student_dashboard';
+                return;
+            }
+            
+            document.getElementById('userName').textContent = currentUser.name;
+        }
+
+        async function loadData() {
+            try {
+                const eventsResponse = await apiRequest('/api/events');
+                events = eventsResponse || [];
+                files = generateMockFiles();
+                populateEventDropdowns();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            }
+        }
+
+        function generateMockFiles() {
+            const mockFiles = [];
+            for (let i = 1; i <= 15; i++) {
+                const uploadDate = new Date();
+                uploadDate.setDate(uploadDate.getDate() - Math.floor(Math.random() * 30));
+                
+                mockFiles.push({
+                    id: i,
+                    name: `document_${i}.pdf`,
+                    type: 'document',
+                    size: Math.floor(Math.random() * 5000) + 100,
+                    event_id: Math.random() > 0.5 ? events[Math.floor(Math.random() * events.length)]?.id || null : null,
+                    shared: Math.random() > 0.7,
+                    uploaded_by: currentUser?.name || 'Admin',
+                    uploaded_at: uploadDate.toISOString()
+                });
+            }
+            return mockFiles.sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
+        }
+
+        function populateEventDropdowns() {
+            const eventFilter = document.getElementById('eventFilter');
+            eventFilter.innerHTML = '<option value="">All Events</option>';
+            
+            events.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.id;
+                option.textContent = event.title;
+                eventFilter.appendChild(option);
+            });
+        }
+
+        function initializeEventHandlers() {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentView = this.dataset.view;
+                    toggleView();
+                });
+            });
+
+            document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            
+            document.getElementById('eventFilter').addEventListener('change', renderFiles);
+            document.getElementById('typeFilter').addEventListener('change', renderFiles);
+            document.getElementById('searchInput').addEventListener('input', renderFiles);
+
+            document.getElementById('userButton').addEventListener('click', function() {
+                document.getElementById('userDropdown').classList.toggle('show');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+        }
+
+        function toggleView() {
+            const fileList = document.getElementById('fileList');
+            fileList.className = `file-list ${currentView}-view`;
+            renderFiles();
+        }
+
+        function renderFiles() {
+            const filteredFiles = getFilteredFiles();
+            const container = document.getElementById('fileList');
+            
+            if (filteredFiles.length === 0) {
+                container.innerHTML = '<div class="empty-state">No files found</div>';
+                return;
+            }
+            
+            let html = '';
+            filteredFiles.forEach(file => {
+                const uploadDate = new Date(file.uploaded_at);
+                const fileIcon = getFileIcon(file.type, file.name);
+                
+                if (currentView === 'grid') {
+                    html += `
+                        <div class="file-card">
+                            <div class="file-icon">${fileIcon}</div>
+                            <div class="file-info">
+                                <h4>${file.name}</h4>
+                                <p>${formatFileSize(file.size)}</p>
+                                <p>${formatDate(uploadDate)}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="file-row">
+                            <div class="file-icon-small">${fileIcon}</div>
+                            <div class="file-details">
+                                <h4>${file.name}</h4>
+                                <p>${formatFileSize(file.size)} • ${formatDate(uploadDate)}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            container.innerHTML = html;
+            updateStats();
+        }
+
+        function getFilteredFiles() {
+            let filtered = [...files];
+            
+            const eventFilter = document.getElementById('eventFilter').value;
+            if (eventFilter) filtered = filtered.filter(f => f.event_id == eventFilter);
+            
+            const typeFilter = document.getElementById('typeFilter').value;
+            if (typeFilter) filtered = filtered.filter(f => f.type === typeFilter);
+            
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) filtered = filtered.filter(f => f.name.toLowerCase().includes(searchTerm));
+            
+            return filtered;
+        }
+
+        function updateStats() {
+            const weekAgo = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('totalFiles').textContent = files.length;
+            document.getElementById('totalSize').textContent = formatFileSize(files.reduce((sum, f) => sum + f.size, 0));
+            document.getElementById('recentFiles').textContent = files.filter(f => new Date(f.uploaded_at) > weekAgo).length;
+            document.getElementById('sharedFiles').textContent = files.filter(f => f.shared).length;
+        }
+
+        function getFileIcon(type, filename) {
+            return '<i class="fas fa-file" style="color: #6c757d;"></i>';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatDate(date) {
+            const diffDays = Math.floor((Date.now() - date) / (1000 * 60 * 60 * 24));
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            return date.toLocaleDateString();
+        }
+
+        function handleFileUpload(e) {
+            const files = Array.from(e.target.files);
+            showToast(`${files.length} file(s) uploaded successfully`, 'success');
+            renderFiles();
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

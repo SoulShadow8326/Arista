@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management | Arista</title>
+    <link rel="stylesheet" href="../css/tasks.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <h1>Arista</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <button class="user-button" id="userButton">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Loading...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/school_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="nav-section">
+                <h3>Events</h3>
+                <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+                <a href="/participants"><i class="fas fa-users"></i> Participants</a>
+                <a href="/teams"><i class="fas fa-user-friends"></i> Teams</a>
+                <a href="/schedules"><i class="fas fa-clock"></i> Schedules</a>
+            </div>
+            <div class="nav-section">
+                <h3>Management</h3>
+                <a href="/tasks" class="active"><i class="fas fa-tasks"></i> Tasks</a>
+                <a href="/announcements"><i class="fas fa-bullhorn"></i> Announcements</a>
+                <a href="/files"><i class="fas fa-folder"></i> Files</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-tasks"></i> Task Management</h1>
+                <p>Organize and track event-related tasks</p>
+            </div>
+
+            <!-- Task Controls -->
+            <div class="task-controls">
+                <div class="filter-controls">
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                    <select id="priorityFilter">
+                        <option value="">All Priority</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select id="assigneeFilter">
+                        <option value="">All Assignees</option>
+                    </select>
+                    <select id="eventFilter">
+                        <option value="">All Events</option>
+                    </select>
+                </div>
+                <div class="action-controls">
+                    <button class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" id="addTaskBtn">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <!-- Task Stats -->
+            <div class="task-stats">
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon progress">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="progressCount">0</h3>
+                        <p>In Progress</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completedCount">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon overdue">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="overdueCount">0</h3>
+                        <p>Overdue</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="task-list" id="taskList">
+                <!-- Tasks will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Task</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Title *</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStatus">Status</label>
+                        <select id="taskStatus" required>
+                            <option value="pending" selected>Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskAssignee">Assignee</label>
+                        <select id="taskAssignee">
+                            <option value="">Unassigned</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEvent">Related Event</label>
+                        <select id="taskEvent">
+                            <option value="">No Event</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date</label>
+                    <input type="datetime-local" id="taskDueDate">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let tasks = [];
+        let users = [];
+        let events = [];
+        let editingTaskId = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            await loadData();
+            initializeEventHandlers();
+            renderTasks();
+            updateStats();
+        });
+
+        async function checkAuth() {
+            currentUser = await getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (currentUser.role === 'student') {
+                window.location.href = '/student_dashboard';
+                return;
+            }
+            
+            document.getElementById('userName').textContent = currentUser.name;
+        }
+
+        async function loadData() {
+            try {
+                const usersResponse = await apiRequest('/api/users');
+                users = usersResponse || [];
+                
+                const eventsResponse = await apiRequest('/api/events');
+                events = eventsResponse || [];
+                
+                tasks = generateMockTasks();
+                
+                populateDropdowns();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            }
+        }
+
+        function generateMockTasks() {
+            const priorities = ['high', 'medium', 'low'];
+            const statuses = ['pending', 'in_progress', 'completed'];
+            const mockTasks = [];
+            
+            for (let i = 1; i <= 15; i++) {
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 30) - 10);
+                
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const isOverdue = dueDate < new Date() && status !== 'completed';
+                
+                mockTasks.push({
+                    id: i,
+                    title: `Task ${i}`,
+                    description: `Description for task ${i}`,
+                    priority: priorities[Math.floor(Math.random() * priorities.length)],
+                    status: isOverdue ? 'overdue' : status,
+                    assignee_id: users[Math.floor(Math.random() * users.length)]?.id || null,
+                    event_id: events[Math.floor(Math.random() * events.length)]?.id || null,
+                    due_at: dueDate.toISOString(),
+                    created_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
+                });
+            }
+            
+            return mockTasks;
+        }
+
+        function populateDropdowns() {
+            const assigneeSelects = [document.getElementById('taskAssignee'), document.getElementById('assigneeFilter')];
+            assigneeSelects.forEach(select => {
+                if (select.id === 'assigneeFilter') {
+                    select.innerHTML = '<option value="">All Assignees</option>';
+                } else {
+                    select.innerHTML = '<option value="">Unassigned</option>';
+                }
+                
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    select.appendChild(option);
+                });
+            });
+            
+            const eventSelects = [document.getElementById('taskEvent'), document.getElementById('eventFilter')];
+            eventSelects.forEach(select => {
+                if (select.id === 'eventFilter') {
+                    select.innerHTML = '<option value="">All Events</option>';
+                } else {
+                    select.innerHTML = '<option value="">No Event</option>';
+                }
+                
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.id;
+                    option.textContent = event.title;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function initializeEventHandlers() {
+            document.getElementById('addTaskBtn').addEventListener('click', openTaskModal);
+            document.getElementById('closeModal').addEventListener('click', closeTaskModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeTaskModal);
+            document.getElementById('taskForm').addEventListener('submit', handleTaskSubmit);
+
+            document.getElementById('statusFilter').addEventListener('change', renderTasks);
+            document.getElementById('priorityFilter').addEventListener('change', renderTasks);
+            document.getElementById('assigneeFilter').addEventListener('change', renderTasks);
+            document.getElementById('eventFilter').addEventListener('change', renderTasks);
+
+            document.getElementById('exportBtn').addEventListener('click', exportTasks);
+
+            document.getElementById('userButton').addEventListener('click', function() {
+                document.getElementById('userDropdown').classList.toggle('show');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+        }
+
+        function renderTasks() {
+            const filteredTasks = getFilteredTasks();
+            const container = document.getElementById('taskList');
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks found</div>';
+                return;
+            }
+            
+            let html = '';
+            filteredTasks.forEach(task => {
+                const assignee = users.find(u => u.id === task.assignee_id);
+                const event = events.find(e => e.id === task.event_id);
+                const dueDate = task.due_at ? new Date(task.due_at) : null;
+                const isOverdue = dueDate && dueDate < new Date() && task.status !== 'completed';
+                
+                html += `
+                    <div class="task-card ${task.status} ${isOverdue ? 'overdue' : ''}" data-task-id="${task.id}">
+                        <div class="task-header">
+                            <div class="task-priority priority-${task.priority}">
+                                <i class="fas fa-flag"></i>
+                                ${task.priority.toUpperCase()}
+                            </div>
+                            <div class="task-status status-${task.status}">
+                                ${getStatusIcon(task.status)}
+                                ${formatStatus(task.status)}
+                            </div>
+                        </div>
+                        <div class="task-content">
+                            <h3>${task.title}</h3>
+                            <p class="task-description">${task.description || 'No description'}</p>
+                            <div class="task-meta">
+                                ${assignee ? `<span><i class="fas fa-user"></i> ${assignee.name}</span>` : '<span><i class="fas fa-user-slash"></i> Unassigned</span>'}
+                                ${event ? `<span><i class="fas fa-calendar"></i> ${event.title}</span>` : ''}
+                                ${dueDate ? `<span><i class="fas fa-clock"></i> ${formatDate(dueDate)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editTask(${task.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updateStats();
+        }
+
+        function getFilteredTasks() {
+            let filtered = [...tasks];
+            
+            const statusFilter = document.getElementById('statusFilter').value;
+            if (statusFilter) {
+                filtered = filtered.filter(t => t.status === statusFilter);
+            }
+            
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            if (priorityFilter) {
+                filtered = filtered.filter(t => t.priority === priorityFilter);
+            }
+            
+            const assigneeFilter = document.getElementById('assigneeFilter').value;
+            if (assigneeFilter) {
+                filtered = filtered.filter(t => t.assignee_id == assigneeFilter);
+            }
+            
+            const eventFilter = document.getElementById('eventFilter').value;
+            if (eventFilter) {
+                filtered = filtered.filter(t => t.event_id == eventFilter);
+            }
+            
+            return filtered.sort((a, b) => {
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                }
+                
+                if (a.due_at && b.due_at) {
+                    return new Date(a.due_at) - new Date(b.due_at);
+                }
+                
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+        }
+
+        function updateStats() {
+            const stats = {
+                pending: tasks.filter(t => t.status === 'pending').length,
+                in_progress: tasks.filter(t => t.status === 'in_progress').length,
+                completed: tasks.filter(t => t.status === 'completed').length,
+                overdue: tasks.filter(t => t.status === 'overdue').length
+            };
+            
+            document.getElementById('pendingCount').textContent = stats.pending;
+            document.getElementById('progressCount').textContent = stats.in_progress;
+            document.getElementById('completedCount').textContent = stats.completed;
+            document.getElementById('overdueCount').textContent = stats.overdue;
+        }
+
+        function getStatusIcon(status) {
+            const icons = {
+                pending: '<i class="fas fa-clock"></i>',
+                in_progress: '<i class="fas fa-spinner fa-spin"></i>',
+                completed: '<i class="fas fa-check"></i>',
+                overdue: '<i class="fas fa-exclamation-triangle"></i>'
+            };
+            return icons[status] || '';
+        }
+
+        function formatStatus(status) {
+            return status.replace('_', ' ').toUpperCase();
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function openTaskModal(taskId = null) {
+            editingTaskId = taskId;
+            const modal = document.getElementById('taskModal');
+            const title = document.getElementById('modalTitle');
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    title.textContent = 'Edit Task';
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskDescription').value = task.description || '';
+                    document.getElementById('taskPriority').value = task.priority;
+                    document.getElementById('taskStatus').value = task.status;
+                    document.getElementById('taskAssignee').value = task.assignee_id || '';
+                    document.getElementById('taskEvent').value = task.event_id || '';
+                    document.getElementById('taskDueDate').value = task.due_at ? 
+                        new Date(task.due_at).toISOString().slice(0, 16) : '';
+                }
+            } else {
+                title.textContent = 'Add Task';
+                document.getElementById('taskForm').reset();
+                document.getElementById('taskPriority').value = 'medium';
+                document.getElementById('taskStatus').value = 'pending';
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('show');
+            document.getElementById('taskForm').reset();
+            editingTaskId = null;
+        }
+
+        async function handleTaskSubmit(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                assignee_id: document.getElementById('taskAssignee').value || null,
+                event_id: document.getElementById('taskEvent').value || null,
+                due_at: document.getElementById('taskDueDate').value || null
+            };
+            
+            try {
+                if (editingTaskId) {
+                    const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
+                    if (taskIndex !== -1) {
+                        tasks[taskIndex] = { ...tasks[taskIndex], ...taskData };
+                        showToast('Task updated successfully', 'success');
+                    }
+                } else {
+                    const newTask = {
+                        id: Math.max(...tasks.map(t => t.id)) + 1,
+                        ...taskData,
+                        created_at: new Date().toISOString()
+                    };
+                    tasks.push(newTask);
+                    showToast('Task created successfully', 'success');
+                }
+                
+                closeTaskModal();
+                renderTasks();
+                
+            } catch (error) {
+                console.error('Error saving task:', error);
+                showToast('Error saving task', 'error');
+            }
+        }
+
+        function editTask(taskId) {
+            openTaskModal(taskId);
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                renderTasks();
+                showToast('Task deleted successfully', 'success');
+            }
+        }
+
+        function exportTasks() {
+            const filteredTasks = getFilteredTasks();
+            const csvContent = generateCSV(filteredTasks);
+            downloadCSV(csvContent, 'tasks.csv');
+        }
+
+        function generateCSV(tasks) {
+            const headers = ['Title', 'Description', 'Priority', 'Status', 'Assignee', 'Event', 'Due Date', 'Created Date'];
+            const rows = tasks.map(task => {
+                const assignee = users.find(u => u.id === task.assignee_id);
+                const event = events.find(e => e.id === task.event_id);
+                
+                return [
+                    task.title,
+                    task.description || '',
+                    task.priority,
+                    task.status,
+                    assignee?.name || 'Unassigned',
+                    event?.title || 'No Event',
+                    task.due_at ? new Date(task.due_at).toLocaleDateString() : '',
+                    new Date(task.created_at).toLocaleDateString()
+                ];
+            });
+            
+            return [headers, ...rows].map(row => 
+                row.map(cell => `"${cell}"`).join(',')
+            ).join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

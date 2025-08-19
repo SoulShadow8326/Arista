@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/school_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="logo">Arista</a>
+            </div>
+            <div class="nav-links">
+                <a href="/school_dashboard">Dashboard</a>
+                <a href="/events">Events</a>
+                <a href="/announcements">Announcements</a>
+                <a href="/files">Files</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/profile" class="btn btn-outline">Profile</a>
+                <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+    <div class="background">
+        <div class="container">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h1>Events <span id="userName" class="user-name"></span></h1>
+                    <div class="header-actions">
+                        <button onclick="showCreateEventModal()" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Event
+                        </button>
+                        <button onclick="showAnnouncementModal()" class="btn btn-secondary">
+                            <i class="fas fa-bullhorn"></i> New Announcement
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="eventsCount">0</div>
+                        <div class="stat-label">Upcoming Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="participantsCount">0</div>
+                        <div class="stat-label">Total Participants</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="teamsCount">0</div>
+                        <div class="stat-label">Teams</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="tasksCount">0</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>All Events</h3>
+                        <div class="card-actions">
+                            <input id="eventSearch" type="search" placeholder="Search events..." class="search-input">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="eventsList" class="events-list">
+                            <div class="empty-state">No events found</div>
+                        </div>
+                        <div id="eventsPagination" class="pagination" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Event</h2>
+                <button class="modal-close" onclick="closeModal('createEventModal')">&times;</button>
+            </div>
+            <form id="createEventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" name="title" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" name="time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createEventModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Announcement</h2>
+                <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+            </div>
+            <form id="announcementForm">
+                <div class="form-group">
+                    <label for="announcementTitle">Title</label>
+                    <input type="text" id="announcementTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="announcementContent">Content</label>
+                    <textarea id="announcementContent" name="content" rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('announcementModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/events.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your School | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/school_register.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-left">
+            <div class="register-visual">
+                <div class="visual-background"></div>
+                <div class="visual-content">
+                    <h2 class="visual-title">Join the Arista Network</h2>
+                    <p class="visual-description">Connect your school with hundreds of others to create amazing interschool events and experiences.</p>
+                    <div class="visual-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">⚀</div>
+                            <span>Secure school dashboard</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚀</div>
+                            <span>Student management</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚀</div>
+                            <span>Event coordination</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="register-right">
+            <div class="register-form-container">
+                <div class="form-header">
+                    <a href="/" class="back-link">← Back to Home</a>
+                    <h1 class="form-title">Register Your School</h1>
+                    <p class="form-subtitle">Create your school's account on Arista</p>
+                </div>
+
+                <form id="schoolRegisterForm" class="register-form">
+                    <div class="form-group">
+                        <label for="schoolName" class="form-label">School Name</label>
+                        <input type="text" id="schoolName" name="name" class="form-input" required autocomplete="organization">
+                        <div class="form-help">Official name of your educational institution</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adminEmail" class="form-label">Admin Email</label>
+                        <input type="email" id="adminEmail" name="admin_email" class="form-input" required autocomplete="email">
+                        <div class="form-help">This will be your primary admin account</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adminPassword" class="form-label">Admin Password</label>
+                        <input type="password" id="adminPassword" name="password" class="form-input" required minlength="8" autocomplete="new-password">
+                        <div class="form-help">Minimum 8 characters</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="schoolAddress" class="form-label">Address</label>
+                            <input type="text" id="schoolAddress" name="address" class="form-input" autocomplete="street-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolPhone" class="form-label">Phone</label>
+                            <input type="tel" id="schoolPhone" name="phone" class="form-input" autocomplete="tel">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="schoolWebsite" class="form-label">Website (Optional)</label>
+                        <input type="url" id="schoolWebsite" name="website" class="form-input" placeholder="https://yourschool.edu" autocomplete="url">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span class="checkbox-custom"></span>
+                            I agree to the Terms of Service and Privacy Policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-full">
+                        <span class="btn-text">Register School</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="loading"></div>
+                            Creating Account...
+                        </div>
+                    </button>
+
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="/login" class="link">Sign in here</a></p>
+                    </div>
+                </form>
+
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <div class="success-icon">✅</div>
+                    <h3>School Registered Successfully!</h3>
+                    <p>Your school code is: <strong id="schoolCode"></strong></p>
+                    <p>Please save this code - students will need it to register.</p>
+                    <a href="/login" class="btn btn-primary">Continue to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/school.js"></script>
+</body>
+</html>

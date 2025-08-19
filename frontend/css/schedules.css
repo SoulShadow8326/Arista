@@ -1,0 +1,428 @@
+/* Schedules Page Styles */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    color: #2E282A;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Schedule Controls */
+.schedule-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.view-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-btn {
+    padding: 0.75rem 1rem;
+    border: 2px solid #EDB88B;
+    background: white;
+    color: #2E282A;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-btn:hover {
+    background: #FAD8D6;
+    transform: translateY(-2px);
+}
+
+.view-btn.active {
+    background: #EF3E36;
+    color: white;
+    border-color: #EF3E36;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-controls select {
+    padding: 0.75rem;
+    border: 2px solid #EDB88B;
+    border-radius: 8px;
+    background: white;
+    color: #2E282A;
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.filter-controls select:focus {
+    outline: none;
+    border-color: #17BEBB;
+    box-shadow: 0 0 0 3px rgba(23, 190, 187, 0.1);
+}
+
+/* Schedule Views */
+.schedule-view {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.schedule-view.active {
+    display: block;
+}
+
+/* Timeline View */
+.timeline-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.timeline-header {
+    background: linear-gradient(135deg, #EF3E36, #17BEBB);
+    color: white;
+    padding: 1.5rem;
+}
+
+.timeline-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-nav h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.timeline-content {
+    padding: 1.5rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.timeline-day {
+    margin-bottom: 2rem;
+}
+
+.timeline-date {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #FAD8D6;
+}
+
+.timeline-date h4 {
+    color: #2E282A;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.timeline-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #FAD8D6;
+    border-radius: 8px;
+    border-left: 4px solid #EF3E36;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(239, 62, 54, 0.2);
+}
+
+.timeline-time {
+    font-weight: 600;
+    color: #EF3E36;
+    font-size: 0.9rem;
+    min-width: 60px;
+}
+
+.timeline-content h5 {
+    color: #2E282A;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.event-name {
+    color: #17BEBB;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+}
+
+.description {
+    color: #666;
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.schedule-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.schedule-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Calendar View */
+.calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.calendar-header {
+    background: linear-gradient(135deg, #17BEBB, #EF3E36);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.calendar-grid {
+    padding: 1.5rem;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* List View */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.schedule-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.schedule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.schedule-info {
+    flex: 1;
+}
+
+.schedule-info h4 {
+    color: #2E282A;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.schedule-info .event-name {
+    color: #17BEBB;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+}
+
+.schedule-info .description {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.schedule-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.detail-item i {
+    color: #EF3E36;
+    width: 16px;
+}
+
+.schedule-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Page-specific modal styles removed to use global themed modal in base.css */
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 1001;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-success {
+    background: #28a745;
+}
+
+.toast-error {
+    background: #dc3545;
+}
+
+.toast-info {
+    background: #17a2b8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .schedule-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .view-controls,
+    .filter-controls {
+        justify-content: center;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .timeline-time {
+        min-width: auto;
+    }
+    
+    .schedule-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .schedule-details {
+        min-width: auto;
+    }
+    
+    .schedule-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+}

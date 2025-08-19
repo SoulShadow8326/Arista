@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/teams.css">
+    <link rel="stylesheet" href="/css/components/dropdown.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Arista</a>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Dashboard</a>
+                    <a href="/events" class="nav-link">Events</a>
+                    <a href="/participants" class="nav-link">Participants</a>
+                    <a href="/teams" class="nav-link active">Teams</a>
+                    <a href="/admin" class="nav-link admin-only">Admin</a>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <button id="signOutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Teams</h1>
+                <div class="page-actions">
+                    <div class="dropdown" data-dropdown>
+                        <button class="btn btn-outline" data-dropdown-trigger>
+                            <span id="eventFilterValue">All Events</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" data-dropdown-menu>
+                            <button class="dropdown-item" data-value="">All Events</button>
+                            <div id="eventFilterOptions">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="showCreateTeamModal()">Create Team</button>
+                </div>
+            </div>
+
+            <div id="teamsList" class="teams-grid grid grid-3"></div>
+        </div>
+    </main>
+
+    <div id="createTeamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Team</h2>
+                <button class="modal-close" onclick="closeModal('createTeamModal')">&times;</button>
+            </div>
+            <form id="createTeamForm">
+                <div class="form-group">
+                    <label for="teamEvent" class="form-label">Event</label>
+                    <select id="teamEvent" name="event_id" class="form-select" required>
+                        <option value="">Select Event</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="teamName" class="form-label">Team Name</label>
+                    <input type="text" id="teamName" name="name" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="teamCoach" class="form-label">Coach</label>
+                        <select id="teamCoach" name="coach_user_id" class="form-select">
+                            <option value="">Select Coach</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="teamMaxSize" class="form-label">Max Size</label>
+                        <input type="number" id="teamMaxSize" name="max_size" class="form-input" value="10" min="1" max="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="teamNotes" class="form-label">Notes</label>
+                    <textarea id="teamNotes" name="notes" class="form-textarea" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createTeamModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script type="module" src="/js/utils/dropdown.js"></script>
+    <script src="/js/teams.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

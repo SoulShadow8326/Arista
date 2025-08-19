@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/student_register.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-left">
+            <div class="register-visual">
+                <div class="visual-background"></div>
+                <div class="visual-content">
+                    <h2 class="visual-title">Join Your School</h2>
+                    <p class="visual-description">Connect with your school's events, teams, and activities through the Arista platform.</p>
+                    <div class="visual-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">⚀</div>
+                            <span>View your events & schedules</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📢</div>
+                            <span>Get important announcements</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon"></div>
+                            <span>Track your team participation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="register-right">
+            <div class="register-form-container">
+                <div class="form-header">
+                    <a href="/" class="back-link">← Back to Home</a>
+                    <h1 class="form-title">Student Registration</h1>
+                    <p class="form-subtitle">Join your school on Arista</p>
+                </div>
+
+                <form id="studentRegisterForm" class="register-form">
+                    <div class="form-group">
+                        <label for="schoolCode" class="form-label">School Code</label>
+                        <input type="text" id="schoolCode" name="school_code" class="form-input" required placeholder="Enter your school's code">
+                        <div class="form-help">Get this code from your school admin</div>
+                        <div id="schoolInfo" class="school-info" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" name="first_name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" name="last_name" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="studentEmail" class="form-label">Email</label>
+                        <input type="email" id="studentEmail" name="email" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="studentPassword" class="form-label">Password</label>
+                        <input type="password" id="studentPassword" name="password" class="form-input" required minlength="8">
+                        <div class="form-help">Minimum 8 characters</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="studentGrade" class="form-label">Grade</label>
+                            <div class="dropdown" data-dropdown>
+                                <input type="hidden" id="studentGrade" name="grade" required>
+                                <button type="button" class="form-select" data-dropdown-trigger>
+                                    <span id="gradeDisplay">Select Grade</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu" data-dropdown-menu>
+                                    <button type="button" class="dropdown-item" data-value="9">Grade 9</button>
+                                    <button type="button" class="dropdown-item" data-value="10">Grade 10</button>
+                                    <button type="button" class="dropdown-item" data-value="11">Grade 11</button>
+                                    <button type="button" class="dropdown-item" data-value="12">Grade 12</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentSection" class="form-label">Section</label>
+                            <input type="text" id="studentSection" name="section" class="form-input" placeholder="A, B, C..." required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guardianName" class="form-label">Guardian Name</label>
+                            <input type="text" id="guardianName" name="guardian_name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                            <input type="tel" id="guardianPhone" name="guardian_phone" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicalNotes" class="form-label">Medical Notes (Optional)</label>
+                        <textarea id="medicalNotes" name="medical_notes" class="form-textarea" rows="3" placeholder="Any medical conditions, allergies, or special requirements..."></textarea>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span class="checkbox-custom"></span>
+                            I agree to the Terms of Service and Privacy Policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-full">
+                        <span class="btn-text">Register as Student</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="loading"></div>
+                            Creating Account...
+                        </div>
+                    </button>
+
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="/login" class="link">Sign in here</a></p>
+                    </div>
+                </form>
+
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <div class="success-icon">✅</div>
+                    <h3>Registration Successful!</h3>
+                    <p>Welcome to <strong id="schoolName"></strong>!</p>
+                    <p>You can now access your student dashboard and participate in school events.</p>
+                    <a href="/login" class="btn btn-primary">Continue to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script type="module" src="/js/utils/dropdown.js"></script>
+    <script src="/js/student_register.js"></script>
+    <script src="/js/student.js"></script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Schedules | Arista</title>
+    <link rel="stylesheet" href="../css/schedules.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <h1>Arista</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <button class="user-button" id="userButton">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Loading...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/school_dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="nav-section">
+                <h3>Events</h3>
+                <a href="/events"><i class="fas fa-calendar-alt"></i> Events</a>
+                <a href="/participants"><i class="fas fa-users"></i> Participants</a>
+                <a href="/teams"><i class="fas fa-user-friends"></i> Teams</a>
+                <a href="/schedules" class="active"><i class="fas fa-clock"></i> Schedules</a>
+            </div>
+            <div class="nav-section">
+                <h3>Management</h3>
+                <a href="/tasks"><i class="fas fa-tasks"></i> Tasks</a>
+                <a href="/announcements"><i class="fas fa-bullhorn"></i> Announcements</a>
+                <a href="/files"><i class="fas fa-folder"></i> Files</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-clock"></i> Event Schedules</h1>
+                <p>Manage event schedules and timelines</p>
+            </div>
+
+            <!-- Schedule Controls -->
+            <div class="schedule-controls">
+                <div class="view-controls">
+                    <button class="view-btn active" data-view="timeline">
+                        <i class="fas fa-stream"></i> Timeline
+                    </button>
+                    <button class="view-btn" data-view="calendar">
+                        <i class="fas fa-calendar"></i> Calendar
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                </div>
+                <div class="filter-controls">
+                    <select id="eventFilter">
+                        <option value="">All Events</option>
+                    </select>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="sports">Sports</option>
+                        <option value="academic">Academic</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="technical">Technical</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="addScheduleBtn">
+                    <i class="fas fa-plus"></i> Add Schedule Item
+                </button>
+            </div>
+
+            <!-- Timeline View -->
+            <div class="schedule-view timeline-view active" id="timelineView">
+                <div class="timeline-container">
+                    <div class="timeline-header">
+                        <div class="timeline-nav">
+                            <button class="nav-btn" id="prevWeek"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="currentWeek">This Week</h3>
+                            <button class="nav-btn" id="nextWeek"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="timeline-content" id="timelineContent">
+                        <!-- Timeline items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="schedule-view calendar-view" id="calendarView">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="currentMonth">Loading...</h3>
+                        <button class="nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div class="schedule-view list-view" id="listView">
+                <div class="schedule-list" id="scheduleList">
+                    <!-- Schedule list will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Schedule Modal -->
+    <div class="modal" id="scheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Schedule Item</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="scheduleForm">
+                <div class="form-group">
+                    <label for="eventSelect">Event</label>
+                    <select id="eventSelect" required>
+                        <option value="">Select Event</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleTitle">Title</label>
+                    <input type="text" id="scheduleTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleDescription">Description</label>
+                    <textarea id="scheduleDescription" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="scheduleDate">Date</label>
+                        <input type="date" id="scheduleDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="scheduleTime">Time</label>
+                        <input type="time" id="scheduleTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleDuration">Duration (minutes)</label>
+                    <input type="number" id="scheduleDuration" min="15" step="15" value="60">
+                </div>
+                <div class="form-group">
+                    <label for="scheduleLocation">Location</label>
+                    <input type="text" id="scheduleLocation">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let events = [];
+        let schedules = [];
+        let currentView = 'timeline';
+        let currentDate = new Date();
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuth();
+            await loadData();
+            initializeEventHandlers();
+            renderCurrentView();
+        });
+
+        async function checkAuth() {
+            currentUser = await getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (currentUser.role === 'student') {
+                window.location.href = '/student_dashboard';
+                return;
+            }
+            
+            document.getElementById('userName').textContent = currentUser.name;
+        }
+
+        async function loadData() {
+            try {
+                const eventsResponse = await apiRequest('/api/events');
+                events = eventsResponse || [];
+                
+                populateEventFilter();
+                
+                schedules = generateMockSchedules();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            }
+        }
+
+        function populateEventFilter() {
+            const eventSelect = document.getElementById('eventSelect');
+            const eventFilter = document.getElementById('eventFilter');
+            
+            eventSelect.innerHTML = '<option value="">Select Event</option>';
+            eventFilter.innerHTML = '<option value="">All Events</option>';
+            
+            events.forEach(event => {
+                const option1 = document.createElement('option');
+                option1.value = event.id;
+                option1.textContent = event.title;
+                eventSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = event.id;
+                option2.textContent = event.title;
+                eventFilter.appendChild(option2);
+            });
+        }
+
+        function generateMockSchedules() {
+            const mockSchedules = [];
+            const now = new Date();
+            
+            for (let i = 0; i < 20; i++) {
+                const date = new Date(now);
+                date.setDate(date.getDate() + Math.floor(Math.random() * 30) - 15);
+                
+                mockSchedules.push({
+                    id: i + 1,
+                    event_id: events[Math.floor(Math.random() * events.length)]?.id || 1,
+                    title: `Schedule Item ${i + 1}`,
+                    description: `Description for schedule item ${i + 1}`,
+                    date: date.toISOString().split('T')[0],
+                    time: `${Math.floor(Math.random() * 12) + 8}:${Math.random() < 0.5 ? '00' : '30'}`,
+                    duration: [30, 60, 90, 120][Math.floor(Math.random() * 4)],
+                    location: `Venue ${Math.floor(Math.random() * 5) + 1}`
+                });
+            }
+            
+            return mockSchedules.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+        }
+
+        function initializeEventHandlers() {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentView = this.dataset.view;
+                    switchView(currentView);
+                });
+            });
+
+            document.getElementById('addScheduleBtn').addEventListener('click', openScheduleModal);
+            document.getElementById('closeModal').addEventListener('click', closeScheduleModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeScheduleModal);
+            document.getElementById('scheduleForm').addEventListener('submit', handleScheduleSubmit);
+
+            document.getElementById('prevWeek').addEventListener('click', () => navigateWeek(-1));
+            document.getElementById('nextWeek').addEventListener('click', () => navigateWeek(1));
+            document.getElementById('prevMonth').addEventListener('click', () => navigateMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => navigateMonth(1));
+
+            document.getElementById('eventFilter').addEventListener('change', renderCurrentView);
+            document.getElementById('categoryFilter').addEventListener('change', renderCurrentView);
+
+            document.getElementById('userButton').addEventListener('click', function() {
+                document.getElementById('userDropdown').classList.toggle('show');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.schedule-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(view + 'View').classList.add('active');
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            switch(currentView) {
+                case 'timeline':
+                    renderTimelineView();
+                    break;
+                case 'calendar':
+                    renderCalendarView();
+                    break;
+                case 'list':
+                    renderListView();
+                    break;
+            }
+        }
+
+        function renderTimelineView() {
+            const container = document.getElementById('timelineContent');
+            const filteredSchedules = getFilteredSchedules();
+            
+            if (filteredSchedules.length === 0) {
+                container.innerHTML = '<div class="empty-state">No schedules found</div>';
+                return;
+            }
+            
+            const groupedSchedules = groupSchedulesByDate(filteredSchedules);
+            let html = '';
+            
+            Object.keys(groupedSchedules).forEach(date => {
+                html += `
+                    <div class="timeline-day">
+                        <div class="timeline-date">
+                            <h4>${formatDate(new Date(date))}</h4>
+                        </div>
+                        <div class="timeline-items">
+                `;
+                
+                groupedSchedules[date].forEach(schedule => {
+                    const event = events.find(e => e.id === schedule.event_id);
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-time">${schedule.time}</div>
+                            <div class="timeline-content">
+                                <h5>${schedule.title}</h5>
+                                <p class="event-name">${event?.title || 'Unknown Event'}</p>
+                                <p class="description">${schedule.description}</p>
+                                <div class="schedule-meta">
+                                    <span><i class="fas fa-clock"></i> ${schedule.duration} min</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${schedule.location}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderCalendarView() {
+            document.getElementById('calendarGrid').innerHTML = '<div class="empty-state">Calendar view coming soon</div>';
+        }
+
+        function renderListView() {
+            const container = document.getElementById('scheduleList');
+            const filteredSchedules = getFilteredSchedules();
+            
+            if (filteredSchedules.length === 0) {
+                container.innerHTML = '<div class="empty-state">No schedules found</div>';
+                return;
+            }
+            
+            let html = '';
+            filteredSchedules.forEach(schedule => {
+                const event = events.find(e => e.id === schedule.event_id);
+                html += `
+                    <div class="schedule-item">
+                        <div class="schedule-info">
+                            <h4>${schedule.title}</h4>
+                            <p class="event-name">${event?.title || 'Unknown Event'}</p>
+                            <p class="description">${schedule.description}</p>
+                        </div>
+                        <div class="schedule-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>${formatDate(new Date(schedule.date))}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>${schedule.time} (${schedule.duration} min)</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${schedule.location}</span>
+                            </div>
+                        </div>
+                        <div class="schedule-actions">
+                            <button class="btn btn-sm btn-secondary">Edit</button>
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function getFilteredSchedules() {
+            let filtered = [...schedules];
+            
+            const eventFilter = document.getElementById('eventFilter').value;
+            if (eventFilter) {
+                filtered = filtered.filter(s => s.event_id == eventFilter);
+            }
+            
+            return filtered;
+        }
+
+        function groupSchedulesByDate(schedules) {
+            return schedules.reduce((groups, schedule) => {
+                const date = schedule.date;
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(schedule);
+                return groups;
+            }, {});
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        function navigateWeek(direction) {
+            currentDate.setDate(currentDate.getDate() + (direction * 7));
+            updateWeekDisplay();
+            renderCurrentView();
+        }
+
+        function navigateMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            updateMonthDisplay();
+            renderCurrentView();
+        }
+
+        function updateWeekDisplay() {
+            const weekStart = new Date(currentDate);
+            weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            
+            document.getElementById('currentWeek').textContent = 
+                `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+        }
+
+        function updateMonthDisplay() {
+            document.getElementById('currentMonth').textContent = 
+                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+
+        function openScheduleModal() {
+            document.getElementById('scheduleModal').classList.add('show');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('show');
+            document.getElementById('scheduleForm').reset();
+        }
+
+        async function handleScheduleSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const scheduleData = {
+                event_id: document.getElementById('eventSelect').value,
+                title: document.getElementById('scheduleTitle').value,
+                description: document.getElementById('scheduleDescription').value,
+                date: document.getElementById('scheduleDate').value,
+                time: document.getElementById('scheduleTime').value,
+                duration: document.getElementById('scheduleDuration').value,
+                location: document.getElementById('scheduleLocation').value
+            };
+            
+            try {
+                schedules.push({
+                    id: schedules.length + 1,
+                    ...scheduleData
+                });
+                
+                schedules.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+                
+                showToast('Schedule item created successfully', 'success');
+                closeScheduleModal();
+                renderCurrentView();
+                
+            } catch (error) {
+                console.error('Error creating schedule:', error);
+                showToast('Error creating schedule item', 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        updateWeekDisplay();
+        updateMonthDisplay();
+    </script>
+</body>
+</html>

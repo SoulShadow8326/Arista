@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Dashboard | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/school_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="logo">Arista</a>
+            </div>
+            <div class="nav-links">
+                <a href="/school_dashboard">Dashboard</a>
+                <a href="/events">Events</a>
+                <a href="/announcements">Announcements</a>
+                <a href="/files">Files</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/profile" class="btn btn-outline">Profile</a>
+                <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+    <div class="background">
+        <div class="container">
+            <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Welcome back, <span id="userName">Admin</span></h1>
+            <div class="header-actions">
+                <button onclick="showCreateEventModal()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Event
+                </button>
+                <button onclick="showAnnouncementModal()" class="btn btn-secondary">
+                    <i class="fas fa-bullhorn"></i> New Announcement
+                </button>
+            </div>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="eventsCount">0</div>
+                <div class="stat-label">Upcoming Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="participantsCount">0</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="teamsCount">0</div>
+                <div class="stat-label">Teams</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="tasksCount">0</div>
+                <div class="stat-label">Pending Tasks</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card upcoming-events">
+                <div class="card-header">
+                    <h3>Upcoming Events</h3>
+                    <a href="/events" class="view-all">View All</a>
+                </div>
+                <div class="card-body">
+                    <div id="upcomingEventsList" class="events-list">
+                        <div class="empty-state">No upcoming events</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card recent-announcements">
+                <div class="card-header">
+                    <h3>Recent Announcements</h3>
+                    <a href="/announcements" class="view-all">View All</a>
+                </div>
+                <div class="card-body">
+                    <div id="announcementsList" class="announcements-list">
+                        <div class="empty-state">No announcements yet</div>
+                    </div>
+                </div>
+            </div>
+        
+                    </div>
+                </div>
+            </div>
+
+        <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Event</h2>
+                <button class="modal-close" onclick="closeModal('createEventModal')">&times;</button>
+            </div>
+            <form id="createEventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" name="title" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" name="time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createEventModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Announcement</h2>
+                <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+            </div>
+            <form id="announcementForm">
+                <div class="form-group">
+                    <label for="announcementTitle">Title</label>
+                    <input type="text" id="announcementTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="announcementContent">Content</label>
+                    <textarea id="announcementContent" name="content" rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('announcementModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            setupEventListeners();
+            loadDashboardData();
+        });
+
+        async function loadUserData() {
+            try {
+                const userData = await api.getMe();
+                if (userData && userData.user) {
+                    document.getElementById('userName').textContent = userData.user.name;
+                    if (userData.school) {
+                        document.getElementById('schoolName').textContent = userData.school.name;
+                        document.getElementById('schoolCode').textContent = `Code: ${userData.school.code}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('Failed to load user data', 'error');
+            }
+        }
+
+        function setupEventListeners() {
+            const eventForm = document.getElementById('createEventForm');
+            if (eventForm) {
+                eventForm.addEventListener('submit', handleCreateEvent);
+            }
+
+            const announcementForm = document.getElementById('announcementForm');
+            if (announcementForm) {
+                announcementForm.addEventListener('submit', handleSendAnnouncement);
+            }
+
+            const signOutBtn = document.getElementById('signOutBtn');
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', async () => {
+                    try {
+                        await api.signOut();
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Sign out failed:', error);
+                        showToast('Failed to sign out', 'error');
+                    }
+                });
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                        const resp = await api.get('/dashboard/school');
+                        if (resp) {
+                            const stats = resp.stats || {};
+                            document.getElementById('eventsCount').textContent = stats.total_events || 0;
+                            document.getElementById('participantsCount').textContent = stats.total_participants || 0;
+                            document.getElementById('teamsCount').textContent = stats.total_teams || 0;
+                            document.getElementById('tasksCount').textContent = stats.pending_tasks || 0;
+
+                            renderUpcomingEvents(resp.upcoming_events || []);
+                            renderAnnouncements(resp.announcements || []);
+                            renderTaskOverview(resp.tasks || []);
+                        }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showToast('Failed to load dashboard data', 'error');
+            }
+        }
+
+        function renderUpcomingEvents(events) {
+            const container = document.getElementById('upcomingEventsList');
+            if (!container) return;
+
+            if (!events || events.length === 0) {
+                container.innerHTML = '<div class="empty-state">No upcoming events</div>';
+                return;
+            }
+
+            container.innerHTML = events.map(event => `
+                <div class="event-item">
+                    <div class="event-date">
+                        <div class="event-day">${new Date(event.date).getDate()}</div>
+                        <div class="event-month">${new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
+                    </div>
+                    <div class="event-details">
+                        <h4 class="event-title">${event.title}</h4>
+                        <div class="event-meta">
+                            <span class="event-time">${new Date(event.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            <span class="event-location">${event.location || 'No location'}</span>
+                        </div>
+                    </div>
+                    <a href="/events/${event.id}" class="event-link">View</a>
+                </div>
+            `).join('');
+        }
+
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcementsList');
+            if (!container) return;
+
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = '<div class="empty-state">No announcements yet</div>';
+                return;
+            }
+
+            container.innerHTML = announcements.map(announcement => `
+                <div class="announcement-item">
+                    <h4 class="announcement-title">${announcement.title}</h4>
+                    <p class="announcement-excerpt">
+                        ${announcement.content.substring(0, 100)}${announcement.content.length > 100 ? '...' : ''}
+                    </p>
+                    <div class="announcement-meta">
+                        <span class="announcement-date">
+                            ${new Date(announcement.created_at).toLocaleDateString()}
+                        </span>
+                        <a href="/announcements/${announcement.id}" class="announcement-link">Read more</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTaskOverview(tasks) {
+            const container = document.getElementById('taskOverview');
+            if (!container) return;
+
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No pending tasks</div>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <label class="task-checkbox">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                            onchange="toggleTaskStatus(${task.id}, this.checked)">
+                        <span class="checkmark"></span>
+                    </label>
+                    <div class="task-details">
+                        <h4 class="task-title ${task.completed ? 'completed' : ''}">${task.title}</h4>
+                        <div class="task-meta">
+                            <span class="task-due">Due: ${new Date(task.due_date).toLocaleDateString()}</span>
+                            <span class="task-priority ${task.priority}">${task.priority}</span>
+                        </div>
+                    </div>
+                    <a href="/tasks/${task.id}" class="task-link">View</a>
+                </div>
+            `).join('');
+        }
+
+        async function toggleTaskStatus(taskId, completed) {
+            try {
+                await api.patch(`/tasks/${taskId}`, { completed });
+                showToast('Task updated successfully', 'success');
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error updating task:', error);
+                showToast('Failed to update task', 'error');
+            }
+        }
+
+        async function handleCreateEvent(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const date = data.date || data.eventDate || document.getElementById('eventDate') && document.getElementById('eventDate').value;
+                const time = data.time || data.eventTime || document.getElementById('eventTime') && document.getElementById('eventTime').value;
+                const start_at = date ? (time ? `${date}T${time}` : `${date}T00:00:00`) : new Date().toISOString();
+                const dt = new Date(start_at);
+                dt.setHours(dt.getHours() + 2);
+                const end_at = dt.toISOString();
+
+                const payload = {
+                    title: data.title || data.eventTitle || data.name || '',
+                    host: data.host || document.getElementById('userName') && document.getElementById('userName').textContent || 'Host',
+                    location: data.location || data.eventLocation || '',
+                    start_at: start_at,
+                    end_at: end_at,
+                    category: data.category || 'general',
+                    description: data.description || data.eventDescription || ''
+                };
+
+                await api.post('/events', payload);
+                showToast('Event created successfully', 'success');
+                closeModal('createEventModal');
+                form.reset();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error creating event:', error);
+                showToast(error.message || 'Failed to create event', 'error');
+            }
+        }
+
+        async function handleSendAnnouncement(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            try {
+                await api.post('/announcements', Object.fromEntries(formData));
+                showToast('Announcement sent successfully', 'success');
+                closeModal('announcementModal');
+                form.reset();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error sending announcement:', error);
+                showToast(error.message || 'Failed to send announcement', 'error');
+            }
+        }
+
+        function showCreateEventModal() {
+            document.getElementById('createEventModal').classList.add('show');
+        }
+
+        function showAnnouncementModal() {
+            document.getElementById('announcementModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            
+            const existingTimeout = toast.dataset.timeout;
+            if (existingTimeout) {
+                clearTimeout(existingTimeout);
+            }
+            
+            toast.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(type);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+                
+                const timeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+                
+                toast.dataset.timeout = timeout;
+            }, 100);
+        }
+        
+        function formatDate(dateString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+    </script>
+</body>
+</html>

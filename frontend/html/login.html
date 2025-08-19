@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card fade-in">
+            <a href="/" class="back-link">
+                
+            </a>
+            <div class="login-header">
+                <h1 class="logo">Arista</h1>
+                <p class="login-subtitle">Event Planning Portal</p>
+            </div>
+            
+            <form id="loginForm" class="login-form" method="post" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span class="btn-text">Sign In</span>
+                    <div class="loading" id="loginLoading" style="display: none;"></div>
+                </button>
+                
+                <a href="/" class="back-link-bottom">
+                    <span>←</span> Back to Home
+                </a>
+            </form>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

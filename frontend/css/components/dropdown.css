@@ -1,0 +1,207 @@
+/* Dropdown Container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Trigger */
+[data-dropdown-trigger] {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    background-color: white;
+    color: #1a202c;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+[data-dropdown-trigger]:hover {
+    background-color: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+[data-dropdown-trigger]::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-left: 0.3em solid transparent;
+    transition: transform 0.2s ease;
+}
+
+.dropdown-open [data-dropdown-trigger]::after {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+[data-dropdown-menu] {
+    display: none;
+    min-width: 160px;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem 0;
+    margin: 0.25rem 0 0;
+    border: 1px solid #e2e8f0;
+    z-index: 50;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown-open [data-dropdown-menu] {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown Items */
+[data-dropdown-menu] a,
+[data-dropdown-menu] button,
+[data-dropdown-menu] [role="menuitem"] {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #4a5568;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+[data-dropdown-menu] a:hover,
+[data-dropdown-menu] button:hover,
+[data-dropdown-menu] [role="menuitem"]:hover {
+    background-color: #f7fafc;
+    color: #2d3748;
+}
+
+[data-dropdown-menu] a:active,
+[data-dropdown-menu] button:active,
+[data-dropdown-menu] [role="menuitem"]:active {
+    background-color: #edf2f7;
+}
+
+/* Dropdown Divider */
+[data-dropdown-divider] {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 0.5rem 0;
+    border: none;
+}
+
+/* Dropdown Header */
+[data-dropdown-header] {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Dropdown with Icons */
+[data-dropdown-menu] .dropdown-item-icon {
+    margin-right: 0.75rem;
+    width: 1.25rem;
+    text-align: center;
+    color: #a0aec0;
+}
+
+/* Danger Items */
+[data-dropdown-menu] .dropdown-item-danger {
+    color: #e53e3e;
+}
+
+[data-dropdown-menu] .dropdown-item-danger:hover {
+    background-color: #fff5f5;
+}
+
+[data-dropdown-menu] .dropdown-item-danger .dropdown-item-icon {
+    color: #e53e3e;
+}
+
+/* Disabled State */
+[data-dropdown-menu] [disabled],
+[data-dropdown-menu] .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    [data-dropdown-menu] {
+        position: fixed;
+        top: auto !important;
+        bottom: 0;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 0.5rem 0.5rem 0 0;
+        margin: 0;
+        transform: translateY(100%);
+        animation: mobileMenuSlideUp 0.3s ease-out;
+    }
+    
+    .dropdown-open [data-dropdown-menu] {
+        transform: translateY(0);
+    }
+    
+    @keyframes mobileMenuSlideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    
+    /* Add overlay for mobile */
+    .dropdown-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 49;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    
+    .dropdown-open .dropdown-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

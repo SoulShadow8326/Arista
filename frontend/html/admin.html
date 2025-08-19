@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Arista</a>
+                <nav class="nav">
+                    <a href="/" class="nav-link">Dashboard</a>
+                    <a href="/events" class="nav-link">Events</a>
+                    <a href="/participants" class="nav-link">Participants</a>
+                    <a href="/teams" class="nav-link">Teams</a>
+                    <a href="/admin" class="nav-link active">Admin</a>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <button id="signOutBtn" class="btn btn-secondary">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Administration</h1>
+            </div>
+
+            <div class="admin-grid grid grid-2">
+                <div class="card fade-in">
+                    <h3 class="card-title">System Statistics</h3>
+                    <div id="systemStats" class="stats-grid"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <h3 class="card-title">Recent Activity</h3>
+                    <div id="recentActivity" class="activity-list"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <h3 class="card-title">Audit Log</h3>
+                    <div class="audit-controls">
+                        <select id="auditFilter" class="filter-select">
+                            <option value="">All Actions</option>
+                            <option value="create">Create</option>
+                            <option value="update">Update</option>
+                            <option value="delete">Delete</option>
+                        </select>
+                        <button class="btn btn-outline" onclick="exportAuditLog()">Export Log</button>
+                    </div>
+                    <div id="auditLog" class="audit-list"></div>
+                    <div id="auditPagination" class="pagination"></div>
+                </div>
+
+                <div class="card fade-in">
+                    <h3 class="card-title">User Management</h3>
+                    <div class="user-controls">
+                        <button class="btn btn-primary" onclick="showCreateUserModal()">Add User</button>
+                        <button class="btn btn-outline" onclick="exportUsers()">Export Users</button>
+                    </div>
+                    <div id="usersList" class="users-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add User</h2>
+                <button class="modal-close" onclick="closeModal('createUserModal')">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userName" class="form-label">Name</label>
+                        <input type="text" id="userName" name="name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" id="userEmail" name="email" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userRole" class="form-label">Role</label>
+                        <select id="userRole" name="role" class="form-select" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student_coordinator">Student Coordinator</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword" class="form-label">Password</label>
+                        <input type="password" id="userPassword" name="password" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createUserModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

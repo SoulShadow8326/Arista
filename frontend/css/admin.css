@@ -1,0 +1,350 @@
+.admin-grid {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+p.admin-header {
+    background: var(--light);
+    color: var(--dark);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: var(--border-radius);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 70%;
+    height: 60%;
+    background: var(--primary);
+    clip-path: polygon(0 0, 80% 0, 60% 100%, 0% 100%);
+}
+
+.admin-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: 50%;
+    background: var(--secondary);
+    clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 20% 100%);
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 40, 42, 0.15);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.activity-list,
+.audit-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item,
+.audit-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    transition: var(--transition);
+}
+
+.activity-item:hover,
+.audit-item:hover {
+    background: var(--light);
+}
+
+.activity-item:last-child,
+.audit-item:last-child {
+    border-bottom: none;
+}
+
+.activity-header,
+.audit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.activity-user,
+.audit-user {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.activity-time,
+.audit-time {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.activity-action,
+.audit-action {
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+.audit-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-300);
+}
+
+.audit-target {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 0.25rem;
+}
+
+.users-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    transition: var(--transition);
+}
+
+.user-item:hover {
+    background: var(--light);
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+}
+
+.user-email {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.user-role {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-admin {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.role-teacher {
+    background: var(--secondary);
+    color: var(--white);
+}
+
+.role-student_coordinator {
+    background: var(--accent);
+    color: var(--dark);
+}
+
+.role-viewer {
+    background: var(--gray-400);
+    color: var(--white);
+}
+
+.user-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-300);
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--gray-200);
+    color: var(--gray-600);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+.system-health {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.health-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.health-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--secondary);
+    animation: pulse 2s infinite;
+}
+
+.health-indicator.warning {
+    background: var(--accent);
+}
+
+.health-indicator.error {
+    background: var(--primary);
+}
+
+.health-label {
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.empty-message {
+    text-align: center;
+    color: var(--gray-600);
+    font-style: italic;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .audit-controls,
+    .user-controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .user-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .user-actions {
+        align-self: stretch;
+        justify-content: center;
+    }
+    
+    .system-health {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.875rem;
+    }
+}

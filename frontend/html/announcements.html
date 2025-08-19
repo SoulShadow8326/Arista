@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements | Arista</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/school_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="logo">Arista</a>
+            </div>
+            <div class="nav-links">
+                <a href="/school_dashboard">Dashboard</a>
+                <a href="/events">Events</a>
+                <a href="/announcements">Announcements</a>
+                <a href="/files">Files</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/profile" class="btn btn-outline">Profile</a>
+                <button id="signOutBtn" class="btn btn-primary">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="background">
+        <div class="container">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h1>Announcements</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" id="addAnnouncementBtn"><i class="fas fa-plus"></i> New Announcement</button>
+                    </div>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total Announcements</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="recentCount">0</div>
+                        <div class="stat-label">This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="highPriorityCount">0</div>
+                        <div class="stat-label">High Priority</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="eventLinkedCount">0</div>
+                        <div class="stat-label">Event-Linked</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>All Announcements</h3>
+                        <div class="card-actions">
+                            <input id="searchInput" type="search" placeholder="Search announcements..." class="search-input">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="announcementList" class="announcements-list">
+                            <div class="empty-state">No announcements yet</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Modal (copied from original) -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Announcement</h2>
+                <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+            </div>
+            <form id="announcementForm">
+                <div class="form-group">
+                    <label for="announcementTitle">Title</label>
+                    <input type="text" id="announcementTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="announcementContent">Content</label>
+                    <textarea id="announcementContent" name="content" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="announcementPriority">Priority</label>
+                        <select id="announcementPriority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="announcementEvent">Related Event</label>
+                        <select id="announcementEvent" name="event_id">
+                            <option value="">No Event</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('announcementModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Publish Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/events.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const eventsResp = await api.get('/events?page=1&limit=50');
+                const events = eventsResp.events || [];
+                const eventSelect = document.getElementById('announcementEvent');
+                if (eventSelect) {
+                    eventSelect.innerHTML = '<option value="">No Event</option>' + events.map(e => `<option value="${e.id}">${e.title || e.name || e.id}</option>`).join('');
+                }
+            } catch (e) {
+                console.warn('Could not load events for announcements:', e);
+            }
+        });
+    </script>
+</body>
+</html>
+        }
+
+        function getFilteredAnnouncements() {
+            let filtered = [...announcements];
+            
+            const eventFilter = document.getElementById('eventFilter').value;
+            if (eventFilter) {
+                filtered = filtered.filter(a => a.event_id == eventFilter);
+            }
+            
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            if (priorityFilter) {
+                filtered = filtered.filter(a => a.priority === priorityFilter);
+            }
+            
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(a => 
+                    a.title.toLowerCase().includes(searchTerm) ||
+                    a.body.toLowerCase().includes(searchTerm) ||
+                    (a.tags && a.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                );
+            }
+            
+            return filtered;
+        }
+
+        function updateStats() {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+            
+            const stats = {
+                total: announcements.length,
+                recent: announcements.filter(a => new Date(a.created_at) > weekAgo).length,
+                highPriority: announcements.filter(a => a.priority === 'high').length,
+                eventLinked: announcements.filter(a => a.event_id).length
+            };
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('recentCount').textContent = stats.recent;
+            document.getElementById('highPriorityCount').textContent = stats.highPriority;
+            document.getElementById('eventLinkedCount').textContent = stats.eventLinked;
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const diffTime = now - date;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return 'Today';
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return `${diffDays} days ago`;
+            } else {
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+        }
+
+        function openAnnouncementModal(announcementId = null) {
+            editingAnnouncementId = announcementId;
+            const modal = document.getElementById('announcementModal');
+            const title = document.getElementById('modalTitle');
+            
+            if (announcementId) {
+                const announcement = announcements.find(a => a.id === announcementId);
+                if (announcement) {
+                    title.textContent = 'Edit Announcement';
+                    document.getElementById('announcementTitle').value = announcement.title;
+                    document.getElementById('announcementBody').value = announcement.body;
+                    document.getElementById('announcementPriority').value = announcement.priority;
+                    document.getElementById('announcementEvent').value = announcement.event_id || '';
+                    document.getElementById('announcementTags').value = announcement.tags ? announcement.tags.join(', ') : '';
+                    document.getElementById('pinAnnouncement').checked = announcement.pinned;
+                }
+            } else {
+                title.textContent = 'New Announcement';
+                document.getElementById('announcementForm').reset();
+                document.getElementById('announcementPriority').value = 'medium';
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function closeAnnouncementModal() {
+            document.getElementById('announcementModal').classList.remove('show');
+            document.getElementById('announcementForm').reset();
+            editingAnnouncementId = null;
+        }
+
+        function viewAnnouncement(announcementId) {
+            const announcement = announcements.find(a => a.id === announcementId);
+            if (!announcement) return;
+            
+            const event = events.find(e => e.id === announcement.event_id);
+            const createdDate = new Date(announcement.created_at);
+            
+            const detailsHtml = `
+                <div class="view-announcement">
+                    <div class="view-header">
+                        ${announcement.pinned ? '<span class="pin-badge"><i class="fas fa-thumbtack"></i> Pinned</span>' : ''}
+                        <span class="priority-badge priority-${announcement.priority}">
+                            <i class="fas fa-flag"></i>
+                            ${announcement.priority.toUpperCase()} PRIORITY
+                        </span>
+                    </div>
+                    <h2>${announcement.title}</h2>
+                    <div class="view-meta">
+                        <span><i class="fas fa-user"></i> ${announcement.author}</span>
+                        <span><i class="fas fa-clock"></i> ${createdDate.toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</span>
+                        ${event ? `<span><i class="fas fa-calendar"></i> ${event.title}</span>` : ''}
+                    </div>
+                    <div class="view-body">
+                        ${announcement.body.replace(/\n/g, '<br>')}
+                    </div>
+                    ${announcement.tags && announcement.tags.length > 0 ? `
+                        <div class="view-tags">
+                            <strong>Tags:</strong>
+                            ${announcement.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('announcementDetails').innerHTML = detailsHtml;
+            document.getElementById('viewModal').classList.add('show');
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.remove('show');
+        }
+
+        async function handleAnnouncementSubmit(e) {
+            e.preventDefault();
+            
+            const announcementData = {
+                title: document.getElementById('announcementTitle').value,
+                body: document.getElementById('announcementBody').value,
+                priority: document.getElementById('announcementPriority').value,
+                event_id: document.getElementById('announcementEvent').value || null,
+                tags: document.getElementById('announcementTags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                pinned: document.getElementById('pinAnnouncement').checked,
+                author: currentUser.name
+            };
+            
+            try {
+                if (editingAnnouncementId) {
+                    const announcementIndex = announcements.findIndex(a => a.id === editingAnnouncementId);
+                    if (announcementIndex !== -1) {
+                        announcements[announcementIndex] = { 
+                            ...announcements[announcementIndex], 
+                            ...announcementData 
+                        };
+                        showToast('Announcement updated successfully', 'success');
+                    }
+                } else {
+                    const newAnnouncement = {
+                        id: Math.max(...announcements.map(a => a.id)) + 1,
+                        ...announcementData,
+                        created_at: new Date().toISOString()
+                    };
+                    announcements.unshift(newAnnouncement);
+                    showToast('Announcement published successfully', 'success');
+                }
+                
+                announcements.sort((a, b) => {
+                    if (a.pinned && !b.pinned) return -1;
+                    if (!a.pinned && b.pinned) return 1;
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+                
+                closeAnnouncementModal();
+                renderAnnouncements();
+                
+            } catch (error) {
+                console.error('Error saving announcement:', error);
+                showToast('Error saving announcement', 'error');
+            }
+        }
+
+        function editAnnouncement(announcementId) {
+            openAnnouncementModal(announcementId);
+        }
+
+        function deleteAnnouncement(announcementId) {
+            if (confirm('Are you sure you want to delete this announcement?')) {
+                announcements = announcements.filter(a => a.id !== announcementId);
+                renderAnnouncements();
+                showToast('Announcement deleted successfully', 'success');
+            }
+        }
+
+        function exportAnnouncements() {
+            const filteredAnnouncements = getFilteredAnnouncements();
+            const csvContent = generateCSV(filteredAnnouncements);
+            downloadCSV(csvContent, 'announcements.csv');
+        }
+
+        function generateCSV(announcements) {
+            const headers = ['Title', 'Body', 'Priority', 'Author', 'Event', 'Tags', 'Pinned', 'Created Date'];
+            const rows = announcements.map(announcement => {
+                const event = events.find(e => e.id === announcement.event_id);
+                
+                return [
+                    announcement.title,
+                    announcement.body.replace(/"/g, '""'),
+                    announcement.priority,
+                    announcement.author,
+                    event?.title || 'No Event',
+                    announcement.tags ? announcement.tags.join('; ') : '',
+                    announcement.pinned ? 'Yes' : 'No',
+                    new Date(announcement.created_at).toLocaleDateString()
+                ];
+            });
+            
+            return [headers, ...rows].map(row => 
+                row.map(cell => `"${cell}"`).join(',')
+            ).join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
