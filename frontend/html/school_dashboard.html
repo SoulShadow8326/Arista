@@ -19,7 +19,6 @@
                 <a href="/school_dashboard">Dashboard</a>
                 <a href="/events">Events</a>
                 <a href="/announcements">Announcements</a>
-                <a href="/files">Files</a>
             </div>
             <div class="nav-actions">
                 <a href="/profile" class="btn btn-outline">Profile</a>
@@ -61,7 +60,7 @@
             </div>
         </div>
         
-        <div class="dashboard-grid">
+        <div class="dashboard-grid" style="padding-top: 5vw;">
             <div class="dashboard-card upcoming-events">
                 <div class="card-header">
                     <h3>Upcoming Events</h3>
@@ -260,20 +259,20 @@
                 return;
             }
 
-            container.innerHTML = announcements.map(announcement => `
+            container.innerHTML = announcements.map(announcement => {
+                const text = announcement.content || announcement.body || '';
+                const excerpt = text.substring(0, 100) + (text.length > 100 ? '...' : '');
+                const date = announcement.created_at ? new Date(announcement.created_at).toLocaleDateString() : '';
+                return `
                 <div class="announcement-item">
-                    <h4 class="announcement-title">${announcement.title}</h4>
-                    <p class="announcement-excerpt">
-                        ${announcement.content.substring(0, 100)}${announcement.content.length > 100 ? '...' : ''}
-                    </p>
+                    <h4 class="announcement-title">${announcement.title || ''}</h4>
+                    <p class="announcement-excerpt">${excerpt}</p>
                     <div class="announcement-meta">
-                        <span class="announcement-date">
-                            ${new Date(announcement.created_at).toLocaleDateString()}
-                        </span>
+                        <span class="announcement-date">${date}</span>
                         <a href="/announcements/${announcement.id}" class="announcement-link">Read more</a>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderTaskOverview(tasks) {

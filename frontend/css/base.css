@@ -342,17 +342,17 @@ body {
 
 .modal-content {
     background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,248,246,0.98));
-    border-radius: calc(var(--border-radius) + 4px);
-    padding: 1.5rem;
-    max-width: 720px;
+    border-radius: calc(var(--border-radius) + 6px);
+    padding: 1.6rem 1.6rem 1.8rem 1.6rem;
+    max-width: 640px; /* slightly narrower for forms */
     width: 100%;
     max-height: 92vh;
     overflow-y: auto;
     transform: translateY(12px) scale(0.98);
     transition: transform 0.28s cubic-bezier(0.2, 1, 0.22, 1), box-shadow 0.2s;
-    box-shadow: 0 18px 60px rgba(46, 40, 42, 0.18);
+    box-shadow: 0 20px 50px rgba(18, 20, 23, 0.12);
     position: relative;
-    border: 1px solid rgba(46,40,42,0.04);
+    border: 1px solid rgba(46,40,42,0.06);
 }
 
 .modal.show .modal-content {
@@ -376,16 +376,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: 0.6rem;
     gap: 1rem;
     padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(46,40,42,0.04);
 }
 
 .modal-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--gray-900);
     margin-left: 14px; /* account for accent bar */
+    letter-spacing: -0.02em;
 }
 
 .modal-subtitle {
@@ -399,8 +401,8 @@ body {
 .modal-close {
     background: var(--gray-100);
     border: 1px solid rgba(46,40,42,0.06);
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -409,6 +411,7 @@ body {
     color: var(--gray-700);
     transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
     margin-left: 8px;
+    flex: 0 0 auto;
 }
 
 .modal-close:hover {
@@ -419,7 +422,7 @@ body {
 
 .modal-body {
     margin-left: 14px;
-    margin-top: 0.25rem;
+    margin-top: 0.5rem;
 }
 
 .modal .form-group {
@@ -429,10 +432,11 @@ body {
 .modal .form-input,
 .modal .form-select,
 .modal .form-textarea {
-    padding: 0.75rem 0.9rem;
+    padding: 0.7rem 0.9rem;
     border-radius: calc(var(--border-radius) - 2px);
-    border: 1px solid rgba(46,40,42,0.08);
+    border: 1px solid rgba(46,40,42,0.12);
     background: #fff;
+    font-size: 0.95rem;
 }
 
 .modal .form-input:focus,
@@ -453,9 +457,10 @@ body {
 }
 
 .modal .btn-primary {
-    padding: 0.7rem 1.25rem;
+    padding: 0.6rem 1.1rem;
     border-radius: 8px;
     box-shadow: 0 8px 22px rgba(239,62,54,0.12);
+    font-weight: 700;
 }
 
 .modal .btn-outline {
@@ -474,6 +479,22 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+}
+
+/* Responsive: stack form row fields on small screens */
+@media (max-width: 520px) {
+    .modal-content {
+        padding: 1rem;
+        max-width: 92vw;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-title {
+        font-size: 1.05rem;
+    }
 }
 
 .form-label {
@@ -684,3 +705,115 @@ body {
         padding: 1rem;
     }
 }
+
+.modal .form-group label,
+.modal label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.modal input[type="text"],
+.modal input[type="email"],
+.modal input[type="date"],
+.modal input[type="time"],
+.modal textarea,
+.modal select {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid rgba(46,40,42,0.08);
+    background: linear-gradient(180deg,#ffffff,#fbfaf9);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+    font-size: 0.95rem;
+    color: var(--gray-900);
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+    outline: none;
+    border-color: var(--primary, #ef3e36);
+    box-shadow: 0 0 0 4px rgba(239,62,54,0.06);
+}
+
+.modal input[type="date"],
+.modal input[type="time"] {
+    padding: 0.55rem 0.7rem;
+}
+
+.modal textarea {
+    resize: vertical;
+    min-height: 88px;
+}
+
+.modal .form-help {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    margin-top: 0.35rem;
+}
+
+/* Compact inline inputs (useful for date+time row) */
+.modal .input-inline {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.modal .input-inline > * {
+    flex: 1 1 0;
+}
+
+/* Buttons inside modals */
+.modal .btn {
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid rgba(46,40,42,0.06);
+    background: var(--gray-50);
+    color: var(--gray-900);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.modal .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(18,20,23,0.06);
+}
+
+.modal .btn-primary {
+    background: linear-gradient(180deg,var(--primary,#ef3e36), #de332b);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+}
+
+.modal .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(46,40,42,0.08);
+    color: var(--gray-800);
+}
+
+.modal .form-actions .btn + .btn {
+    margin-left: 0.5rem;
+}
+
+/* Focus outline for keyboard users */
+.modal input:focus-visible,
+.modal textarea:focus-visible,
+.modal select:focus-visible,
+.modal .btn:focus-visible {
+    outline: 3px solid rgba(239,62,54,0.08);
+    outline-offset: 2px;
+}
+
+/* Small helper: shrink labels on very small screens */
+@media (max-width: 420px) {
+    .modal .form-group label {
+        font-size: 0.85rem;
+    }
+}
+
+/* End modal theming */

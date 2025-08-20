@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional, Dict, Any, List
+from typing import Optional, List
 import json
 from pathlib import Path
 import secrets
@@ -79,15 +79,18 @@ class Database:
                 CREATE TABLE IF NOT EXISTS events (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     school_id INTEGER NOT NULL,
-                    name TEXT NOT NULL,
+                    title TEXT NOT NULL,
                     description TEXT,
                     category TEXT,
-                    start_time TIMESTAMP NOT NULL,
-                    end_time TIMESTAMP NOT NULL,
+                    start_at TIMESTAMP NOT NULL,
+                    end_at TIMESTAMP NOT NULL,
                     location TEXT,
+                    host TEXT,
+                    notes TEXT,
+                    registration_link TEXT,
                     max_participants INTEGER,
                     status TEXT DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'ongoing', 'completed', 'cancelled')),
-                    created_by INTEGER NOT NULL,
+                    created_by INTEGER,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (school_id) REFERENCES schools (id) ON DELETE CASCADE,
@@ -161,6 +164,21 @@ class Database:
                     FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE CASCADE
                 )
             ''')
+            cursor.execute("PRAGMA table_info(announcements)")
+            ann_cols = [r[1] for r in cursor.fetchall()]
+            if 'event_id' not in ann_cols:
+                try:
+                    cursor.execute('ALTER TABLE announcements ADD COLUMN event_id INTEGER')
+                except Exception:
+                    pass
+            cursor.execute("PRAGMA table_info(announcements)")
+            ann_cols = [r[1] for r in cursor.fetchall()]
+            if 'body' not in ann_cols and 'content' in ann_cols:
+                try:
+                    cursor.execute('ALTER TABLE announcements ADD COLUMN body TEXT')
+                    cursor.execute("UPDATE announcements SET body = content WHERE body IS NULL AND content IS NOT NULL")
+                except Exception:
+                    pass
 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS tasks (
@@ -180,7 +198,6 @@ class Database:
                     FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE CASCADE
                 )
             ''')
-
             cursor.execute("PRAGMA table_info(participants)")
             cols = [r[1] for r in cursor.fetchall()]
             if 'school_id' not in cols:
@@ -188,6 +205,39 @@ class Database:
                     cursor.execute('ALTER TABLE participants ADD COLUMN school_id INTEGER')
                 except Exception:
                     pass
+
+            cursor.execute("PRAGMA table_info(events)")
+            ev_cols = [r[1] for r in cursor.fetchall()]
+            if 'title' not in ev_cols:
+                try:
+                    cursor.execute('ALTER TABLE events ADD COLUMN title TEXT')
+                    if 'name' in ev_cols:
+                        cursor.execute("UPDATE events SET title = name WHERE title IS NULL AND name IS NOT NULL")
+                except Exception:
+                    pass
+
+            if 'start_at' not in ev_cols:
+                try:
+                    cursor.execute('ALTER TABLE events ADD COLUMN start_at TIMESTAMP')
+                    if 'start_time' in ev_cols:
+                        cursor.execute("UPDATE events SET start_at = start_time WHERE start_at IS NULL AND start_time IS NOT NULL")
+                except Exception:
+                    pass
+
+            if 'end_at' not in ev_cols:
+                try:
+                    cursor.execute('ALTER TABLE events ADD COLUMN end_at TIMESTAMP')
+                    if 'end_time' in ev_cols:
+                        cursor.execute("UPDATE events SET end_at = end_time WHERE end_at IS NULL AND end_time IS NOT NULL")
+                except Exception:
+                    pass
+
+            for col_name in ('host', 'notes', 'registration_link'):
+                if col_name not in ev_cols:
+                    try:
+                        cursor.execute(f'ALTER TABLE events ADD COLUMN {col_name} TEXT')
+                    except Exception:
+                        pass
             
             conn.commit()
             cls._initialized = True
@@ -239,7 +289,8 @@ class Database:
 
 app = FastAPI(title="Arista Event Planning Portal")
 
-templates = Jinja2Templates(directory="../frontend/html")
+FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+templates = Jinja2Templates(directory=str(FRONTEND_DIR / "html"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -670,6 +721,69 @@ async def get_me(request: Request, user = Depends(require_auth)):
         raise HTTPException(status_code=401, detail="Not authenticated")
     return {"user": user}
 
+@app.post("/api/announcements")
+async def create_announcement_top(request: Request, user = Depends(require_role(["admin", "teacher"]))):
+    data = await request.json()
+
+    title = data.get('title')
+    body = data.get('body') or data.get('message') or data.get('content')
+
+    if not title or not body:
+        raise HTTPException(status_code=400, detail='Title and body are required')
+
+    conn = Database.get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(announcements)")
+        ann_info = cur.fetchall()
+        ann_cols = [r[1] for r in ann_info]
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+
+    cols = []
+    vals = []
+
+    if 'school_id' in ann_cols:
+        cols.append('school_id')
+        vals.append(user.get('school_id'))
+
+    if 'event_id' in ann_cols:
+        cols.append('event_id')
+        vals.append(data.get('event_id'))
+
+    if 'title' in ann_cols:
+        cols.append('title')
+        vals.append(title)
+
+    if 'body' in ann_cols:
+        cols.append('body')
+        vals.append(body)
+    if 'content' in ann_cols:
+        cols.append('content')
+        vals.append(body)
+
+    if 'created_by' in ann_cols:
+        cols.append('created_by')
+        vals.append(user.get('id'))
+
+    if not cols:
+        raise HTTPException(status_code=500, detail='No valid announcement columns available to insert')
+
+    placeholders = ', '.join(['?'] * len(cols))
+    sql = f"INSERT INTO announcements ({', '.join(cols)}) VALUES ({placeholders})"
+
+    try:
+        announcement_id = Database.execute_query(sql, tuple(vals))
+        log_audit(user['id'], 'create', 'announcement', announcement_id)
+        return {"id": announcement_id, "message": "Announcement created"}
+    except Exception as e:
+        print(f"Error creating announcement: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/events")
 async def get_events(
     page: int = 1, 
@@ -746,16 +860,68 @@ async def create_event(request: Request, user = Depends(require_role(["admin", "
         if not data.get(field):
             raise HTTPException(status_code=400, detail=f"{field} is required")
     
-    event_id = Database.execute_query(
-        "INSERT INTO events (school_id, title, host, location, start_at, end_at, category, description, notes, registration_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (user["school_id"], data["title"], data["host"], data["location"], data["start_at"], 
-         data["end_at"], data["category"], data.get("description", ""), 
-         data.get("notes", ""), data.get("registration_link", ""))
-    )
-    
-    log_audit(user["id"], "create", "event", event_id)
-    
-    return {"id": event_id, "message": "Event created"}
+    conn = Database.get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(events)")
+        ev_cols = [r[1] for r in cur.fetchall()]
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+
+    cols = []
+    vals = []
+
+    if 'school_id' in ev_cols:
+        cols.append('school_id')
+        vals.append(user['school_id'])
+
+    if 'name' in ev_cols:
+        cols.append('name')
+        vals.append(data['title'])
+
+    if 'title' in ev_cols:
+        cols.append('title')
+        vals.append(data['title'])
+
+    for c in ('host', 'location', 'category', 'description', 'notes', 'registration_link'):
+        if c in ev_cols:
+            cols.append(c)
+            vals.append(data.get(c, ""))
+
+    if 'start_at' in ev_cols:
+        cols.append('start_at')
+        vals.append(data.get('start_at'))
+    if 'end_at' in ev_cols:
+        cols.append('end_at')
+        vals.append(data.get('end_at'))
+    if 'start_time' in ev_cols and 'start_at' not in ev_cols:
+        cols.append('start_time')
+        vals.append(data.get('start_at'))
+    if 'end_time' in ev_cols and 'end_at' not in ev_cols:
+        cols.append('end_time')
+        vals.append(data.get('end_at'))
+
+    if 'created_by' in ev_cols:
+        cols.append('created_by')
+        vals.append(user.get('id'))
+
+    if not cols:
+        raise HTTPException(status_code=500, detail="No valid event columns available to insert")
+
+    placeholders = ', '.join(['?'] * len(cols))
+    sql = f"INSERT INTO events ({', '.join(cols)}) VALUES ({placeholders})"
+
+    try:
+        event_id = Database.execute_query(sql, tuple(vals))
+        log_audit(user["id"], "create", "event", event_id)
+        return {"id": event_id, "message": "Event created"}
+    except Exception as e:
+        print(f"Error creating event: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/events/{event_id}")
 async def get_event(event_id: int, user = Depends(require_auth)):
@@ -1029,9 +1195,24 @@ async def remove_team_member(team_id: int, participant_id: int, user = Depends(r
     
     return {"message": "Member removed from team"}
 
-app.mount("/css", StaticFiles(directory="../frontend/css"), name="css")
-app.mount("/js", StaticFiles(directory="../frontend/js"), name="js")
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+css_dir = FRONTEND_DIR / "css"
+js_dir = FRONTEND_DIR / "js"
+static_dir = FRONTEND_DIR
+
+if css_dir.exists():
+    app.mount("/css", StaticFiles(directory=str(css_dir)), name="css")
+else:
+    print(f"Warning: static css directory not found: {css_dir}")
+
+if js_dir.exists():
+    app.mount("/js", StaticFiles(directory=str(js_dir)), name="js")
+else:
+    print(f"Warning: static js directory not found: {js_dir}")
+
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+else:
+    print(f"Warning: static directory not found: {static_dir}")
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -1107,7 +1288,8 @@ async def read_school_dashboard(
 
 @app.get("/student_dashboard", response_class=HTMLResponse)
 async def read_student_dashboard(request: Request, user = Depends(get_current_user)):
-    if not user or user.role != 'student':
+    # `get_current_user` returns a dict; use dict access to check role
+    if not user or (user.get('role') if isinstance(user, dict) else getattr(user, 'role', None)) != 'student':
         raise HTTPException(status_code=403, detail="Access denied")
         
     return templates.TemplateResponse(
@@ -1123,6 +1305,19 @@ async def read_events(request: Request, user = Depends(get_current_user)):
     return templates.TemplateResponse(
         "events.html",
         {"request": request, "user": user, "active_page": "events"}
+    )
+
+
+@app.get("/events/{event_id}", response_class=HTMLResponse)
+async def read_event_detail(request: Request, event_id: int, user = Depends(get_current_user)):
+    # Serve the same events HTML page for a specific event URL so client-side JS
+    # can read the event id from the path and load details via the API.
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    return templates.TemplateResponse(
+        "events.html",
+        {"request": request, "user": user, "active_page": "events", "selected_event_id": event_id}
     )
 
 @app.get("/participants", response_class=HTMLResponse)

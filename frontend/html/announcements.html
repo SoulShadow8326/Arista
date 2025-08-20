@@ -19,7 +19,6 @@
                 <a href="/school_dashboard">Dashboard</a>
                 <a href="/events">Events</a>
                 <a href="/announcements">Announcements</a>
-                <a href="/files">Files</a>
             </div>
             <div class="nav-actions">
                 <a href="/profile" class="btn btn-outline">Profile</a>
@@ -132,6 +131,31 @@
             } catch (e) {
                 console.warn('Could not load events for announcements:', e);
             }
+            const addBtn = document.getElementById('addAnnouncementBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    const modal = document.getElementById('announcementModal');
+                    if (modal) modal.classList.add('show');
+                });
+            }
+
+            const annForm = document.getElementById('announcementForm');
+            if (annForm) {
+                annForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(annForm);
+                    try {
+                        await api.post('/announcements', Object.fromEntries(formData));
+                        const modal = document.getElementById('announcementModal');
+                        if (modal) modal.classList.remove('show');
+                        annForm.reset();
+                        showToast('Announcement published', 'success');
+                    } catch (err) {
+                        console.error('Failed to publish announcement', err);
+                        showToast(err.message || 'Failed to publish announcement', 'error');
+                    }
+                });
+            }
         });
     </script>
 </body>
@@ -146,18 +170,21 @@
                 filtered = filtered.filter(a => a.event_id == eventFilter);
             }
             
-            const priorityFilter = document.getElementById('priorityFilter').value;
+            const priorityFilterEl = document.getElementById('priorityFilter');
+            const priorityFilter = priorityFilterEl ? priorityFilterEl.value : '';
             if (priorityFilter) {
-                filtered = filtered.filter(a => a.priority === priorityFilter);
+                filtered = filtered.filter(a => (a.priority || '').toLowerCase() === priorityFilter.toLowerCase());
             }
-            
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const searchInputEl = document.getElementById('searchInput');
+            const searchTerm = (searchInputEl && searchInputEl.value || '').toLowerCase();
             if (searchTerm) {
-                filtered = filtered.filter(a => 
-                    a.title.toLowerCase().includes(searchTerm) ||
-                    a.body.toLowerCase().includes(searchTerm) ||
-                    (a.tags && a.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
-                );
+                filtered = filtered.filter(a => {
+                    const title = (a.title || '').toLowerCase();
+                    const body = ((a.body || a.content) || '').toLowerCase();
+                    const tagsMatch = a.tags && a.tags.some(tag => (tag || '').toLowerCase().includes(searchTerm));
+                    return title.includes(searchTerm) || body.includes(searchTerm) || tagsMatch;
+                });
             }
             
             return filtered;
@@ -170,7 +197,7 @@
             const stats = {
                 total: announcements.length,
                 recent: announcements.filter(a => new Date(a.created_at) > weekAgo).length,
-                highPriority: announcements.filter(a => a.priority === 'high').length,
+                highPriority: announcements.filter(a => (a.priority || '').toLowerCase() === 'high').length,
                 eventLinked: announcements.filter(a => a.event_id).length
             };
             

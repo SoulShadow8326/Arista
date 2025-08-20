@@ -4,13 +4,18 @@ let currentFilters = {};
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         const userResponse = await api.getMe();
-        document.getElementById('userName').textContent = userResponse.user.name;
-        
-        if (userResponse.user.role === 'admin') {
-            document.querySelector('.admin-only').style.display = 'block';
+        const userNameEl = document.getElementById('userName');
+        if (userResponse && userResponse.user) {
+            if (userNameEl) userNameEl.textContent = userResponse.user.name;
+            const adminEl = document.querySelector('.admin-only');
+            if (userResponse.user.role === 'admin' && adminEl) {
+                adminEl.style.display = 'block';
+            }
+        } else {
+            if (userNameEl) userNameEl.textContent = 'Guest';
         }
-        
-    try { setupEventListeners(); } catch (e) { console.warn('setupEventListeners failed', e); }
+
+        try { setupEventListeners(); } catch (e) { console.warn('setupEventListeners failed', e); }
         loadEvents();
     } catch (error) {
     console.warn('User not authenticated, continuing as guest:', error);

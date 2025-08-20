@@ -139,3 +139,12 @@ function debounce(func, wait) {
 }
 
 const api = new ApiClient();
+
+async function getCurrentUser() {
+    try {
+        const resp = await api.getMe();
+        return resp && resp.user ? resp.user : null;
+    } catch (e) {
+        return null;
+    }
+}

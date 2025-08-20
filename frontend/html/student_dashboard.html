@@ -17,7 +17,6 @@
                     <a href="/student/events" class="nav-link">My Events</a>
                     <a href="/student/teams" class="nav-link">My Teams</a>
                     <a href="/student/schedules" class="nav-link">Schedules</a>
-                    <a href="/student/files" class="nav-link">Files</a>
                 </nav>
                 <div class="user-menu">
                     <div class="student-info">
@@ -247,13 +246,20 @@
                 return;
             }
 
-            container.innerHTML = announcements.map(announcement => `
-                <div class="announcement-item ${announcement.unread ? 'unread' : ''}">
-                    <div class="announcement-title">${announcement.title}</div>
-                    <div class="announcement-date">${formatDate(announcement.created_at)}</div>
-                    ${announcement.unread ? '<div class="unread-indicator">New</div>' : ''}
-                </div>
-            `).join('');
+                container.innerHTML = announcements.map(announcement => {
+                    const text = announcement.content || announcement.body || '';
+                    const excerpt = text.substring(0, 100) + (text.length > 100 ? '...' : '');
+                    const date = announcement.created_at ? formatDate(announcement.created_at) : '';
+                    return `
+                    <div class="announcement-item ${announcement.unread ? 'unread' : ''}">
+                        <div class="announcement-title">${announcement.title || ''}</div>
+                        <p class="announcement-excerpt">${excerpt}</p>
+                        <div class="announcement-meta">
+                            <span class="announcement-date">${date}</span>
+                            ${announcement.unread ? '<div class="unread-indicator">New</div>' : ''}
+                        </div>
+                    </div>
+                `}).join('');
         }
 
         function renderTeams(teams) {

@@ -1,7 +1,8 @@
 .register-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden; /* prevent overall page scroll, we'll allow right column to scroll */
 }
 
 .register-left {
@@ -12,6 +13,10 @@
     padding: 3rem;
     color: var(--dark);
     position: relative;
+    height: 100vh; /* ensure full viewport height */
+    top: 0;
+    position: sticky; /* keep left pane fixed while right scrolls */
+    overflow: hidden; /* avoid left content scrolling */
 }
 
 .register-left::before {
@@ -98,10 +103,12 @@
 .register-right {
     background: var(--light);
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* allow content to start at top so scrollTop reaches 0 */
     justify-content: center;
-    padding: 2rem;
+    padding: 3rem 2rem; /* add top padding so content isn't flush under the viewport */
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100vh;
 }
 
 .register-form-container {
@@ -361,9 +368,15 @@
     .register-container {
         grid-template-columns: 1fr;
     }
-    
     .register-left {
+        position: relative; /* undo sticky for stacked mobile layout */
         min-height: 40vh;
+        height: auto;
+    }
+
+    .register-right {
+        height: auto; /* allow normal document flow on mobile */
+        overflow: visible;
     }
     
     .visual-title {
@@ -395,4 +408,45 @@
     .feature-item {
         padding: 0.75rem;
     }
+}
+
+.register-form [data-dropdown-menu] .dropdown-item,
+.register-form [data-dropdown-menu] button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    color: var(--dark);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+}
+
+.register-form [data-dropdown-menu] .dropdown-item:hover,
+.register-form [data-dropdown-menu] button:hover {
+    background-color: var(--secondary);
+    color: #fff;
+    transform: translateX(6px);
+}
+
+.register-form [data-dropdown-menu] .dropdown-item:active,
+.register-form [data-dropdown-menu] button:active {
+    background-color: var(--primary);
+    color: #fff;
+    transform: translateX(2px);
+}
+
+.register-form [data-dropdown-menu] .dropdown-item:focus,
+.register-form [data-dropdown-menu] button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(23, 190, 187, 0.12);
+}
+
+.register-form [data-dropdown-menu] .dropdown-item + .dropdown-item,
+.register-form [data-dropdown-menu] button + .dropdown-item {
+    margin-top: 0.5rem;
 }
